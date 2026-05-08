@@ -1249,20 +1249,20 @@ ul, ol { list-style: none; }
 /* === Hero animated arc/streak === */
 .hero__visual svg .ring-rotate {
   transform-origin: 780px 520px;
-  animation: ringDrift 60s linear infinite;
+  animation: ringDrift 20s linear infinite;
 }
 .hero__visual svg .ring-rotate-2 {
   transform-origin: 780px 520px;
-  animation: ringDrift2 90s linear infinite;
+  animation: ringDrift2 28s linear infinite;
 }
 .hero__visual svg .arc-pulse {
-  animation: arcPulse 7s var(--ease-in-out) infinite;
+  animation: arcPulse 4s var(--ease-in-out) infinite;
 }
 .hero__visual svg .streak-anim {
-  animation: streakDrift 8s var(--ease-in-out) infinite;
+  animation: streakDrift 5s var(--ease-in-out) infinite;
 }
-.hero__visual svg .dust { animation: dustFloat 12s ease-in-out infinite; }
-.hero__visual svg .dust-2 { animation: dustFloat 16s ease-in-out infinite reverse; }
+.hero__visual svg .dust { animation: dustFloat 6s ease-in-out infinite; }
+.hero__visual svg .dust-2 { animation: dustFloat 8s ease-in-out infinite reverse; }
 
 @keyframes ringDrift {
   0% { transform: rotate(0deg); }
@@ -1273,17 +1273,17 @@ ul, ol { list-style: none; }
   100% { transform: rotate(-360deg); }
 }
 @keyframes arcPulse {
-  0%, 100% { opacity: 0.55; }
+  0%, 100% { opacity: 0.3; }
   50% { opacity: 1; }
 }
 @keyframes streakDrift {
-  0%, 100% { transform: translateX(0); opacity: 0.85; }
-  50% { transform: translateX(-8px); opacity: 1; }
+  0%, 100% { transform: translateX(0) translateY(0); opacity: 0.6; }
+  50% { transform: translateX(-20px) translateY(-4px); opacity: 1; }
 }
 @keyframes dustFloat {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  33%      { transform: translateY(-6px) translateX(3px); }
-  66%      { transform: translateY(4px) translateX(-3px); }
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+  33%      { transform: translateY(-14px) translateX(8px); opacity: 1; }
+  66%      { transform: translateY(10px) translateX(-8px); opacity: 0.6; }
 }
 
 .eyebrow::before {
@@ -1295,8 +1295,8 @@ ul, ol { list-style: none; }
 }
 
 @keyframes coreBreathe {
-  0%, 100% { opacity: 0.9; }
-  50% { opacity: 1; }
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
 }
 .hero__visual {
   animation: coreBreathe 8s var(--ease-in-out) infinite;
