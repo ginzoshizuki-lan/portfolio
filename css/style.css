@@ -344,8 +344,18 @@ ul, ol { list-style: none; }
   margin-bottom: 44px;
   font-feature-settings: "palt" 0;
 }
-.hero__display .accent-line { color: var(--color-champagne-2); font-style: italic; }
+.hero__display .accent-line { color: var(--color-champagne-2); }
 .hero__display .period { color: var(--color-champagne); }
+.hero__kanji {
+  display: block;
+  font-family: var(--font-jp-serif);
+  font-size: clamp(14px, 2vw, 22px);
+  font-weight: var(--weight-regular);
+  letter-spacing: 0.18em;
+  color: var(--text-secondary);
+  margin-top: 16px;
+  animation-delay: 440ms;
+}
 .hero__display .line {
   display: block;
   opacity: 0;
