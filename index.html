@@ -3,23 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>静木 銀蔵 | Ginzo Shizuki</title>
+  <title>静木 銀蔵 | Ginzo Shizuki — Researcher / Practitioner / Connector</title>
   <meta name="description" content="静木銀蔵 / Ginzo Shizuki のポートフォリオ。京都大学大学院で人間環境学を研究しながら、組織変容、ボードゲーム、美容AI、探究学習など複数領域の事業を実践しています。">
   <meta name="author" content="静木 銀蔵">
 
   <meta property="og:type" content="website">
   <meta property="og:title" content="静木 銀蔵 | Ginzo Shizuki">
-  <meta property="og:description" content="研究者であり、実践者。世界を見るレンズを少しだけ増やすためのポートフォリオ。">
+  <meta property="og:description" content="世界の言説空間を、豊かに。">
   <meta property="og:url" content="https://ginzoshizuki.com/">
   <meta property="og:locale" content="ja_JP">
 
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="静木 銀蔵 | Ginzo Shizuki">
-  <meta name="twitter:description" content="世界の言説空間を、豊かに。">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Noto+Sans+JP:wght@300;400;600&family=Raleway:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&family=Zen+Old+Mincho:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/style.css">
@@ -27,9 +23,14 @@
 <body>
   <a href="#main" class="skip-link">本文へスキップ</a>
 
+  <!-- ============== NAV ============== -->
   <header class="nav" id="nav">
     <div class="nav__inner">
-      <a href="#hero" class="nav__brand" aria-label="Ginzo Shizuki ホーム">静木銀蔵 / Ginzo Shizuki</a>
+      <a href="#hero" class="nav__brand" aria-label="Ginzo Shizuki ホーム">
+        <span class="kanji">静木銀蔵</span>
+        <span class="slash">/</span>
+        <span class="romaji">Ginzo Shizuki</span>
+      </a>
 
       <button class="nav__toggle" aria-label="メニューを開く" aria-expanded="false" aria-controls="nav-menu">
         <span></span><span></span><span></span>
@@ -38,7 +39,7 @@
       <nav class="nav__menu" id="nav-menu" aria-label="メインナビゲーション">
         <ul>
           <li><a href="#works">Works</a></li>
-          <li><a href="#manifesto">About</a></li>
+          <li><a href="#about">About</a></li>
           <li><a href="#profile">Profile</a></li>
           <li><a href="#writings">Writings</a></li>
           <li><a href="#contact">Contact</a></li>
@@ -48,192 +49,377 @@
   </header>
 
   <main id="main">
-    <section class="hero" id="hero" aria-label="ヒーロー">
-      <div class="ambient ambient--hero" aria-hidden="true">
-        <span></span><span></span><span></span>
+    <!-- ============== HERO ============== -->
+    <section class="hero" id="hero" aria-label="ヒーロー" data-screen-label="01 Hero">
+      <div class="hero__visual" aria-hidden="true">
+        <svg viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ringGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#c8ccd1" stop-opacity="0"/>
+              <stop offset="55%" stop-color="#c8ccd1" stop-opacity="0.05"/>
+              <stop offset="78%" stop-color="#e2e6ea" stop-opacity="0.45"/>
+              <stop offset="92%" stop-color="#c8ccd1" stop-opacity="0.18"/>
+              <stop offset="100%" stop-color="#c8ccd1" stop-opacity="0"/>
+            </radialGradient>
+            <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55"/>
+              <stop offset="20%" stop-color="#e2e6ea" stop-opacity="0.25"/>
+              <stop offset="60%" stop-color="#c8ccd1" stop-opacity="0.05"/>
+              <stop offset="100%" stop-color="#c8ccd1" stop-opacity="0"/>
+            </radialGradient>
+            <linearGradient id="streakGrad" x1="0%" y1="50%" x2="100%" y2="50%">
+              <stop offset="0%" stop-color="#c8ccd1" stop-opacity="0"/>
+              <stop offset="50%" stop-color="#ffffff" stop-opacity="0.9"/>
+              <stop offset="100%" stop-color="#c8ccd1" stop-opacity="0"/>
+            </linearGradient>
+            <filter id="softblur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="0.6"/>
+            </filter>
+          </defs>
+
+          <!-- core glow halo -->
+          <ellipse cx="780" cy="520" rx="520" ry="520" fill="url(#coreGlow)"/>
+
+          <!-- concentric thin rings -->
+          <g class="ring-rotate" fill="none" stroke="#e2e6ea" filter="url(#softblur)">
+            <ellipse cx="780" cy="520" rx="380" ry="380" stroke-opacity="0.55" stroke-width="0.7" transform="rotate(-12 780 520)"/>
+            <ellipse cx="780" cy="520" rx="420" ry="420" stroke-opacity="0.42" stroke-width="0.6" transform="rotate(8 780 520)"/>
+            <ellipse cx="780" cy="520" rx="455" ry="455" stroke-opacity="0.7" stroke-width="1" transform="rotate(-3 780 520)"/>
+            <ellipse cx="780" cy="520" rx="478" ry="478" stroke-opacity="0.32" stroke-width="0.5" transform="rotate(15 780 520)"/>
+            <ellipse cx="780" cy="520" rx="298" ry="298" stroke-opacity="0.28" stroke-width="0.55" transform="rotate(22 780 520)"/>
+            <ellipse cx="780" cy="520" rx="510" ry="510" stroke-opacity="0.18" stroke-width="0.4"/>
+          </g>
+
+          <!-- bright accent arcs -->
+          <g class="arc-pulse" fill="none" stroke="#ffffff" stroke-linecap="round">
+            <path d="M 360,540 A 460,440 0 0 1 1080,310" stroke-opacity="0.7" stroke-width="1.1"/>
+            <path d="M 460,820 A 440,420 0 0 1 1180,560" stroke-opacity="0.55" stroke-width="0.9"/>
+            <path d="M 480,260 A 380,360 0 0 1 1140,580" stroke-opacity="0.32" stroke-width="0.7"/>
+          </g>
+
+          <!-- Horizontal light streak -->
+          <g class="streak-anim">
+          <rect x="580" y="540" width="620" height="2" fill="url(#streakGrad)" opacity="0.9"/>
+          <rect x="640" y="556" width="500" height="1" fill="url(#streakGrad)" opacity="0.5"/>
+          <circle cx="1180" cy="540" r="14" fill="#ffffff" opacity="0.85" filter="url(#softblur)"/>
+          <circle cx="1180" cy="540" r="5" fill="#ffffff"/>
+          </g>
+
+          <!-- particle dust -->
+          <g class="dust" fill="#e2e6ea">
+            <circle cx="700" cy="380" r="1.2" opacity="0.7"/>
+            <circle cx="820" cy="320" r="0.8" opacity="0.5"/>
+            <circle cx="920" cy="380" r="1.4" opacity="0.8"/>
+            <circle cx="1020" cy="450" r="0.9" opacity="0.6"/>
+            <circle cx="780" cy="640" r="1.1" opacity="0.7"/>
+            <circle cx="880" cy="700" r="0.7" opacity="0.5"/>
+            <circle cx="1000" cy="660" r="1.3" opacity="0.85"/>
+            <circle cx="660" cy="500" r="0.9" opacity="0.6"/>
+            <circle cx="1080" cy="380" r="1" opacity="0.7"/>
+            <circle cx="540" cy="600" r="0.8" opacity="0.45"/>
+            <circle cx="940" cy="550" r="1.5" opacity="0.9"/>
+            <circle cx="1100" cy="600" r="0.9" opacity="0.55"/>
+            <circle cx="720" cy="720" r="1" opacity="0.6"/>
+            <circle cx="600" cy="440" r="0.7" opacity="0.4"/>
+            <circle cx="850" cy="460" r="0.9" opacity="0.55"/>
+            <circle cx="1140" cy="500" r="1.2" opacity="0.75"/>
+            <circle cx="980" cy="290" r="0.8" opacity="0.5"/>
+            <circle cx="760" cy="240" r="0.6" opacity="0.4"/>
+            <circle cx="900" cy="800" r="0.9" opacity="0.55"/>
+          </g>
+
+          <!-- subtle smoke wisps -->
+          <g class="dust-2" fill="none" stroke="#c8ccd1" stroke-opacity="0.18" stroke-width="0.6">
+            <path d="M 520,500 Q 700,440 880,500 T 1180,520"/>
+            <path d="M 480,580 Q 680,640 900,580 T 1180,600"/>
+          </g>
+        </svg>
       </div>
 
       <div class="hero__inner">
-        <p class="hero__tiny">Researcher / Practitioner / Connector</p>
-        <h1 class="hero__display">
-          <span>Ginzo</span>
-          <span>Shizuki</span>
-        </h1>
-        <div class="hero__bottom">
-          <p>世界の言説空間を、豊かに。</p>
-          <p>特定の現場（ローカル）に蓄えられた知を、まだそれを知らない社会へ。</p>
+        <div>
+          <div class="hero__role">
+            <span class="dot"></span>
+            <span>言葉の提案、新しい現実の設計</span>
+            <span class="sep">—</span>
+            <span>研究と社会の往還</span>
+          </div>
+
+          <h1 class="hero__display">
+            <span class="line">Ginzo</span>
+            <span class="line accent-line">Shizuki<span class="period">.</span></span>
+          </h1>
+
+          <p class="hero__lead">
+            何が「問題」で、何が「当たり前」で、何が「<span class="em">可能性</span>」か。複数の領域での実践と探究を通じて、新たな現実を社会に実装する。
+          </p>
+
+          <div class="hero__cta">
+            <a href="#works" class="btn btn--primary">
+              <span>Selected Works</span>
+              <span class="arrow" aria-hidden="true"></span>
+            </a>
+            <a href="#about" class="btn btn--ghost">
+              <span>About Me</span>
+              <span class="arrow" aria-hidden="true"></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero__meta">
+        <span>京都 — 東京 — 福井</span>
+        <span class="meta-line"></span>
+        <span class="scroll-cue">
+          <span>Scroll</span>
+          <span class="arrow-down"></span>
+        </span>
+        <span class="meta-line"></span>
+        <span>2026 Portfolio · v.III</span>
+      </div>
+    </section>
+
+    <!-- ============== INTRO / ABOUT ============== -->
+    <section class="section intro" id="about-intro" aria-label="イントロダクション" data-screen-label="02 Intro">
+      <div class="container">
+        <div class="intro__inner">
+          <span class="eyebrow">— What I Do</span>
+          <div>
+            <p class="intro__pull">
+              <span class="intro__line">机上にて、組織や社会の現実が<span class="em">言葉と物語</span>によってどう編まれるかを研究する。</span>
+              <span class="intro__line quiet">実践にて、複数の事業や活動を通じて、別のレンズを社会に差し込む。</span>
+            </p>
+            <p class="intro__sub">
+              狭まりゆく世界に、もう少しの風通しを。
+            </p>
+          </div>
         </div>
       </div>
     </section>
 
-    <section class="intro" id="about" aria-label="イントロダクション">
-      <div class="container intro__grid">
-        <p class="section-label">— 銀蔵って、何してる人？</p>
-        <div class="intro__copy">
-          <p>大学院では、組織や社会の現実が言葉と物語によってどう編まれるかを研究する。</p>
-          <p>現場では、複数の事業や活動を通じて、別のレンズを社会に差し込む。</p>
-          <p>狭まりゆく世界に、もう少しの風通しを。— 楽しく、しなやかに。</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="works" id="works" aria-label="事業・活動">
+    <!-- ============== WORKS ============== -->
+    <section class="section works" id="works" aria-label="事業・活動" data-screen-label="03 Works">
       <div class="container">
         <div class="section-head">
-          <p class="section-label">Selected work</p>
-          <h2>複数の現場で、レンズを差し込む。</h2>
+          <div class="section-head__lead">
+            <span class="eyebrow">Selected Work · 01 — 04</span>
+            <h2>複数の現場で、<br>レンズを差し込む実践中。</h2>
+          </div>
         </div>
 
         <div class="project-list">
           <article class="project">
             <a href="https://bwh-research.com" target="_blank" rel="noopener">
-              <span class="project__index">01</span>
-              <span class="project__title">合同会社BWH総合研究所</span>
-              <span class="project__tags">Organization Design / Narrative / Dialogue</span>
-              <span class="project__arrow">→</span>
+              <div class="project__row">
+                <span class="project__num">01</span>
+                <h3 class="project__title">合同会社BWH総合研究所</h3>
+                <p class="project__desc">組織の「現実」は、そこで交わされる対話によって編まれている。社会構成主義・物語論を背景に、対話を通じた企業の組織デザイン・組織開発に設計・伴走する。</p>
+                <div class="project__tags">
+                  <span class="project__tag">Organization Design</span>
+                  <span class="project__tag">Narrative</span>
+                  <span class="project__tag">Dialogue</span>
+                </div>
+                <span class="project__arrow" aria-hidden="true">↗</span>
+              </div>
             </a>
-            <p>組織を「人事最適化」ではなく、対話と物語として見るレンズ。人事・組織開発の実装支援。社会構成主義・物語論を背景に、対話を通じた組織変容に伴走します。</p>
           </article>
 
           <article class="project">
             <a href="https://kyodai-boardgame.com" target="_blank" rel="noopener">
-              <span class="project__index">02</span>
-              <span class="project__title">Kyobo合同会社</span>
-              <span class="project__tags">Board Game / Learning / Experience</span>
-              <span class="project__arrow">→</span>
+              <div class="project__row">
+                <span class="project__num">02</span>
+                <h3 class="project__title">Kyobo合同会社</h3>
+                <p class="project__desc">「正解を当てる」学びから、「意味を構成する」遊びへ。ボードゲーム・マーダーミステリーの自社開発と、法人向けゲーム制作。</p>
+                <div class="project__tags">
+                  <span class="project__tag">Board Game</span>
+                  <span class="project__tag">Learning</span>
+                  <span class="project__tag">Experience</span>
+                </div>
+                <span class="project__arrow" aria-hidden="true">↗</span>
+              </div>
             </a>
-            <p>学校的な「正解のある、いやいやする学び」を、楽しく再構成する取り組み。京大ボドゲ製作所・京大マダミス製作所・Kyobo Kids。自社ボードゲーム開発と、法人向けゲーム制作を行います。</p>
           </article>
 
           <article class="project">
             <a href="https://www.e-donuts.com/" target="_blank" rel="noopener">
-              <span class="project__index">03</span>
-              <span class="project__title">一般社団法人 e-donuts</span>
-              <span class="project__tags">Inquiry / Children / Platform</span>
-              <span class="project__arrow">→</span>
+              <div class="project__row">
+                <span class="project__num">03</span>
+                <h3 class="project__title">一般社団法人 e-donuts</h3>
+                <p class="project__desc">子どもの問いを、大人の「正解」で上書きしない教育を。京都を拠点に、探究学習のプログラム開発とプラットフォーム構築。</p>
+                <div class="project__tags">
+                  <span class="project__tag">Inquiry</span>
+                  <span class="project__tag">Children</span>
+                  <span class="project__tag">Platform</span>
+                </div>
+                <span class="project__arrow" aria-hidden="true">↗</span>
+              </div>
             </a>
-            <p>学びを「正解探し」ではなく、探究として開くレンズ。京都を拠点に、子どもの探究学習を支援。プログラム開発・教材開発・教育プラットフォーム構築に取り組みます。</p>
           </article>
 
           <article class="project">
-            <a>
-              <span class="project__index">04</span>
-              <span class="project__title">株式会社（社名未定／BeautyAI）</span>
-              <span class="project__tags">Beauty / Data / Communication</span>
-              <span class="project__arrow">•</span>
+            <a aria-disabled="true">
+              <div class="project__row">
+                <span class="project__num">04</span>
+                <h3 class="project__title">株式会社（社名未定／BeautyAI）<span class="project__status">2026.06 設立予定</span></h3>
+                <p class="project__desc">対面の会話に埋もれている構造を、データとして浮かび上がらせる。美容領域を起点とした、コミュニケーションの可視化と価値再設計。</p>
+                <div class="project__tags">
+                  <span class="project__tag">Beauty</span>
+                  <span class="project__tag">Data</span>
+                  <span class="project__tag">Communication</span>
+                </div>
+                <span class="project__arrow is-pending" aria-hidden="true">·</span>
+              </div>
             </a>
-            <p>リアル空間のコミュニケーションを、データとして可視化する実験。美容領域を起点に、対面コミュニケーションの構造化と新しい価値提示の方法を探る、収益事業としての実証実験。2026年6月登記予定。</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="manifesto" id="manifesto" aria-label="思想">
-      <div class="ambient ambient--section" aria-hidden="true">
-        <span></span><span></span>
-      </div>
-      <div class="container manifesto__inner">
-        <p class="section-label">About</p>
-        <h2>Beliefs in Practice.</h2>
-        <div class="manifesto__grid">
-          <article>
-            <span>01</span>
+    <!-- ============== ABOUT / Beliefs ============== -->
+    <section class="section about" id="about" aria-label="思想" data-screen-label="04 About">
+      <div class="container">
+        <div class="about__head">
+          <span class="eyebrow eyebrow--plain">— About</span>
+          <h2>Beliefs in <span class="em">Practice.</span></h2>
+        </div>
+
+        <div class="about__grid">
+          <article class="about__card">
+            <span class="about__card__num">01</span>
             <h3>問題意識</h3>
-            <p>効率、資本、学歴 — 単一の価値基準が、世界の見え方を狭めています。問題は「どの基準が正しいか」ではなく、レンズの選択肢が失われていることです。</p>
+            <p>効率、資本、学歴。支配的な言説は、世界の見え方を均質にする。問題は「どの基準が正しいか」ではない。別の見え方がありえたことすら、忘れられていくことだ。</p>
           </article>
-          <article>
-            <span>02</span>
+          <article class="about__card">
+            <span class="about__card__num">02</span>
             <h3>ミッション</h3>
-            <p>それぞれの現場（ローカル）に蓄えられた知識と、まだそれを知らない社会のあいだに立つ。別の見え方、別の現実の可能性を、楽しく提示し続けます。</p>
+            <p>ローカルの現場には、まだ言語化されていない知がある。一方、あるローカルには届いていない知もある。その双方のあいだに立ち、別の現実の可能性を提示し続ける。</p>
           </article>
-          <article>
-            <span>03</span>
+          <article class="about__card">
+            <span class="about__card__num">03</span>
             <h3>立ち位置</h3>
-            <p>思想と収益事業は両立します。資本主義を否定するのではなく、その内側で別のレンズを実装することを選びます。研究者であり、実践者であること。それが私のスタンスです。</p>
+            <p>資本主義の外側から批判するのではなく、その内側で別のレンズを探究し、社会に提案し続けたい。様々な可能性を新たな現実として社会に埋め込んでいきたい。研究者であり、実践者であること。それが私です。</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="profile" id="profile" aria-label="経歴・所属">
-      <div class="container profile__grid">
-        <div>
-          <p class="section-label">Profile</p>
-          <h2>研究者であり、実践者。</h2>
-        </div>
-        <div class="profile__content">
-          <div class="profile__block">
-            <h3>Current</h3>
-            <ul>
-              <li>京都大学大学院 人間環境学研究科 博士課程</li>
-              <li>合同会社BWH総合研究所 代表社員</li>
-              <li>Kyobo合同会社 代表社員</li>
-              <li>株式会社（社名未定／BeautyAI） COO 兼 Founder</li>
-              <li>一般社団法人 e-donuts 理事</li>
-            </ul>
-          </div>
-          <div class="profile__block">
-            <h3>Base</h3>
-            <p>京都・東京・福井の3点を移動しながら生活。研究、事業、地域の現場を横断し、それぞれの文脈から問いを持ち帰っています。</p>
-          </div>
-          <div class="profile__block">
-            <h3>Education</h3>
-            <ul class="timeline">
-              <li><span>2017</span>福井県立藤島高等学校 卒業</li>
-              <li><span>2021</span>京都大学 総合人間学部 卒業</li>
-              <li><span>2023</span>京都大学大学院 人間環境学研究科 修士課程 修了</li>
-              <li><span>2023-</span>京都大学大学院 人間環境学研究科 博士課程 在籍</li>
-            </ul>
-          </div>
-          <div class="profile__block">
-            <h3>Past</h3>
-            <ul>
-              <li>株式会社エムスリー</li>
-              <li>語りBar カタルシス（創業）</li>
-            </ul>
-          </div>
-          <div class="profile__block">
-            <h3>Research Theme</h3>
-            <p>対話や物語によって、組織や社会の「現実」はどう作られ、どう変わっていくのか — そんな問いを研究しています。</p>
+    <!-- ============== PROFILE ============== -->
+    <section class="section profile" id="profile" aria-label="経歴・所属" data-screen-label="05 Profile">
+      <div class="container">
+        <div class="profile__grid">
+          <aside class="profile__sticky">
+            <span class="eyebrow">— Profile</span>
+            <h2>研究者であり、<br><span class="em">実践者</span>。</h2>
+            <div class="profile__portrait" aria-hidden="true">
+              <svg viewBox="0 0 200 250" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <radialGradient id="portraitGlow" cx="50%" cy="40%" r="60%">
+                    <stop offset="0%" stop-color="#c9a876" stop-opacity="0.35"/>
+                    <stop offset="60%" stop-color="#c9a876" stop-opacity="0.05"/>
+                    <stop offset="100%" stop-color="#c9a876" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+                <rect width="200" height="250" fill="url(#portraitGlow)"/>
+                <circle cx="100" cy="95" r="32" fill="none" stroke="#c9a876" stroke-opacity="0.55" stroke-width="0.6"/>
+                <path d="M 50,200 Q 100,140 150,200 L 150,250 L 50,250 Z" fill="none" stroke="#c9a876" stroke-opacity="0.55" stroke-width="0.6"/>
+              </svg>
+            </div>
+          </aside>
+
+          <div class="profile__content">
+            <div class="profile__block">
+              <h3>Current</h3>
+              <ul>
+                <li>京都大学大学院 人間環境学研究科 博士課程</li>
+                <li>合同会社BWH総合研究所 代表社員</li>
+                <li>Kyobo合同会社 代表社員</li>
+                <li>株式会社（社名未定／BeautyAI） COO 兼 Founder</li>
+                <li>一般社団法人 e-donuts 理事</li>
+              </ul>
+            </div>
+
+            <div class="profile__block">
+              <h3>Base</h3>
+              <p>京都・東京・福井の3点を移動しながら生活。研究、事業、地域の現場を横断し、それぞれの文脈から問いを持ち帰っています。</p>
+            </div>
+
+            <div class="profile__block">
+              <h3>Education</h3>
+              <ul class="timeline">
+                <li><span class="year">2017</span><span>福井県立藤島高等学校 卒業</span></li>
+                <li><span class="year">2021</span><span>京都大学 総合人間学部 卒業</span></li>
+                <li><span class="year">2023</span><span>京都大学大学院 人間環境学研究科 修士課程 修了</span></li>
+                <li><span class="year">2024 —</span><span>京都大学大学院 人間環境学研究科 博士課程 在籍</span></li>
+              </ul>
+            </div>
+
+            <div class="profile__block">
+              <h3>Research Theme</h3>
+              <p>対話や物語によって、組織や社会の「現実」はどう作られ、どう変わっていくのか — そんな問いを研究しています。</p>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="media" id="writings" aria-label="発信媒体">
+    <!-- ============== WRITINGS ============== -->
+    <section class="section writings" id="writings" aria-label="発信媒体" data-screen-label="06 Writings">
       <div class="container">
         <div class="section-head">
-          <p class="section-label">Writings</p>
-          <h2>Notes, interviews, and appearances.</h2>
+          <div class="section-head__lead">
+            <span class="eyebrow">Writings</span>
+            <h2>言葉は、世界を<br>切り取るレンズである。</h2>
+          </div>
         </div>
 
-        <div class="media-list" aria-label="発信媒体一覧">
-          <article class="media-item media-item--empty">
-            <span class="media-item__date">Coming Soon</span>
-            <h3>公開準備中</h3>
-            <p>インタビュー、登壇、寄稿、掲載情報などを順次追加していきます。</p>
+        <div class="writings__grid">
+          <article class="writing-card writing-card--coming">
+            <div class="writing-card__meta">
+              <span>Coming Soon</span>
+            </div>
+            <h3>Notes, interviews, and appearances.</h3>
+            <p style="font-family:var(--font-jp-sans);font-size:14px;line-height:1.95;color:var(--text-secondary);">公開準備中。インタビュー、登壇、寄稿、掲載情報などを順次追加していきます。</p>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="contact" id="contact" aria-label="お問い合わせ">
-      <div class="container contact__inner">
-        <p class="section-label">Contact</p>
-        <h2>なんでも、いつでも。</h2>
-        <p class="contact__lead">事業のご相談、研究の議論、メディアからの取材、ただの雑談まで歓迎です。</p>
-        <a href="mailto:ginzoshizuki@gmail.com" class="contact__email">
-          ginzoshizuki@gmail.com
-          <span class="arrow" aria-hidden="true">→</span>
-        </a>
+    <!-- ============== CONTACT ============== -->
+    <section class="section contact" id="contact" aria-label="お問い合わせ" data-screen-label="07 Contact">
+      <div class="container">
+        <div class="contact__inner">
+          <span class="eyebrow eyebrow--plain">— Contact</span>
+          <h2 class="contact__h2">対話は、いつでも<span class="em">開かれて</span>います。</h2>
+          <p class="contact__lead">事業の相談、研究の議論、取材、あるいはただの雑談まで。</p>
+
+          <a href="mailto:ginzoshizuki@gmail.com" class="contact__email-row">
+            <span class="contact__email-text">ginzoshizuki@gmail.com</span>
+            <span class="contact__email-cta">
+              <span>Send Mail</span>
+              <span aria-hidden="true">→</span>
+            </span>
+          </a>
+
+          <div class="contact__socials">
+            <a href="https://x.com/gin_ukigumo" target="_blank" rel="noopener" aria-label="X (Twitter)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X
+            </a>
+            <a href="https://www.instagram.com/ginchan1212_/" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="vertical-align:-2px;margin-right:6px"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram
+            </a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
 
+  <!-- ============== FOOTER ============== -->
   <footer class="footer">
     <div class="container">
-      <p class="footer__copy">© <span id="year">2026</span> Ginzo Shizuki. All rights reserved.</p>
-      <p class="footer__sub">狭まりゆく世界に、もう少しの風通しを。</p>
+      <div class="footer__inner">
+        <p class="footer__copy">© <span id="year">2026</span> Ginzo Shizuki. All rights reserved.</p>
+        <p class="footer__sub">狭まりゆく世界に、もう少しの風通しを。</p>
+      </div>
     </div>
   </footer>
 

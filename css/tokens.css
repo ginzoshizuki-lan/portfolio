@@ -1,74 +1,122 @@
 :root {
-  --color-midnight-canvas: #000000;
-  --color-frost-white: #ffffff;
-  --color-deep-shadow: #181818;
-  --color-whisper-gray: #6d6d6d;
-  --color-misty-gray: #636363;
-  --gradient-deep-ocean: linear-gradient(90deg, rgb(160, 224, 171), rgb(255, 172, 46) 50%, rgb(165, 45, 37));
+  /* ──────────────────────────────────────────
+     Palette — refined dark with champagne gold
+     ────────────────────────────────────────── */
+  --color-void:        #0a0908;   /* near-black with subtle warmth */
+  --color-ink:         #050403;   /* deepest, for layered shadows  */
+  --color-ivory:       #f3ede0;   /* warm off-white                */
+  --color-bone:        #e8dfcb;   /* slightly cooler off-white     */
+  --color-paper:       #f7f1e3;   /* cream, for filled CTAs        */
+  --color-champagne:   #c8ccd1;   /* primary accent — silver       */
+  --color-champagne-2: #e2e6ea;   /* lighter highlight             */
+  --color-champagne-3: #7c8087;   /* deep silver for shadows       */
+  --color-soot:        #1a1714;   /* muted card surface            */
+  --color-line:        rgba(243, 237, 224, 0.14);
+  --color-line-strong: rgba(243, 237, 224, 0.28);
+  --color-line-gold:   rgba(200, 204, 209, 0.34);
 
-  --bg-primary: var(--color-midnight-canvas);
-  --bg-elevated: rgba(255, 255, 255, 0.06);
-  --text-primary: var(--color-frost-white);
-  --text-secondary: rgba(255, 255, 255, 0.76);
-  --text-muted: var(--color-whisper-gray);
-  --border: rgba(255, 255, 255, 0.30);
+  /* Semantic */
+  --bg-primary:    var(--color-void);
+  --bg-card:       var(--color-soot);
+  --text-primary:  var(--color-ivory);
+  --text-secondary: rgba(243, 237, 224, 0.66);
+  --text-muted:    rgba(243, 237, 224, 0.42);
+  --text-gold:     var(--color-champagne);
+  --border:        var(--color-line);
+  --border-strong: var(--color-line-strong);
 
-  --font-roobert: 'Inter', 'Noto Sans JP', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-raleway: 'Raleway', 'Noto Sans JP', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-roobert);
-  --font-serif: var(--font-raleway);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* ──────────────────────────────────────────
+     Typography
+     ────────────────────────────────────────── */
+  --font-jp-serif: "Zen Old Mincho", "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --font-jp-sans:  "Zen Kaku Gothic New", "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  --font-en-serif: "EB Garamond", "Cormorant Garamond", serif;
+  --font-en-sans:  "DM Sans", "Inter", "Noto Sans JP", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-en-mono:  "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
-  --text-caption: 11px;
-  --leading-caption: 1.58;
-  --text-body: 16px;
-  --leading-body: 1.25;
-  --text-subheading: 18px;
-  --leading-subheading: 1.22;
-  --text-heading-sm: clamp(22px, 2.45vw, 31px);
-  --leading-heading-sm: 1.21;
-  --text-heading: clamp(31px, 4.4vw, 58px);
-  --leading-heading: 1.1;
-  --text-heading-lg: clamp(42px, 6.8vw, 78px);
-  --leading-heading-lg: 1.02;
-  --text-display: clamp(76px, 19vw, 225px);
-  --leading-display: 0.70;
+  --font-display:  var(--font-jp-serif);
+  --font-heading:  var(--font-jp-serif);
+  --font-body:     var(--font-jp-sans);
+  --font-label:    var(--font-en-sans);
 
-  --font-weight-light: 300;
-  --font-weight-regular: 400;
-  --font-weight-semibold: 600;
+  /* Sizes (fluid) */
+  --text-micro:      11px;
+  --text-caption:    12px;
+  --text-body-sm:    14px;
+  --text-body:       16px;
+  --text-body-lg:    18px;
+  --text-lead:       clamp(18px, 1.6vw, 22px);
+  --text-h4:         clamp(20px, 1.9vw, 24px);
+  --text-h3:         clamp(24px, 2.4vw, 32px);
+  --text-h2:         clamp(34px, 4.2vw, 60px);
+  --text-h1:         clamp(46px, 6.4vw, 92px);
+  --text-display:    clamp(60px, 9vw, 132px);
 
-  --spacing-unit: 4px;
-  --spacing-8: 8px;
-  --spacing-12: 12px;
-  --spacing-28: 28px;
-  --spacing-40: 40px;
-  --spacing-48: 48px;
-  --spacing-64: 64px;
-  --spacing-68: 68px;
-  --spacing-152: 152px;
+  --leading-tight:   1.05;
+  --leading-snug:    1.18;
+  --leading-normal:  1.5;
+  --leading-relaxed: 1.7;
+  --leading-jp:      1.85;
 
-  --page-max-width: 1078px;
-  --section-gap: 46px;
-  --card-padding: 34px;
-  --element-gap: 14px;
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+  --tracking-wider:  0.16em;
 
-  --radius-cards: 10px;
-  --radius-buttons: 75.024px;
-  --radius-sm: 10px;
-  --radius-md: 10px;
-  --radius-lg: 10px;
-  --radius-pill: 75.024px;
+  --weight-light:     300;
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
 
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  /* ──────────────────────────────────────────
+     Spacing scale (8pt-ish)
+     ────────────────────────────────────────── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-28:  112px;
+  --space-32:  128px;
+  --space-40:  160px;
+  --space-48:  192px;
+
+  /* ──────────────────────────────────────────
+     Layout
+     ────────────────────────────────────────── */
+  --page-max:     1440px;
+  --content-max:  1280px;
+  --measure:      62ch;
+  --gutter:       clamp(20px, 4vw, 56px);
+
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --ease-out:    cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-  --duration-fast: 200ms;
-  --duration-base: 360ms;
-  --duration-slow: 900ms;
+  --ease-glide:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:    220ms;
+  --dur-base:    420ms;
+  --dur-slow:    900ms;
+  --dur-still:   1600ms;
 
+  /* Z-index */
+  --z-skip:    100;
+  --z-nav:      50;
+  --z-overlay:  40;
+  --z-tweaks:   60;
+
+  /* Hero progress (set by JS) */
   --hero-progress: 0;
-
-  --z-skip: 100;
-  --z-nav: 50;
-  --z-overlay: 40;
 }
