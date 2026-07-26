@@ -321,6 +321,32 @@ ul, ol { list-style: none; }
   animation: none;
 }
 
+/* Full bleed once the video is up. The SVG keeps the original right-hand
+   panel (its composition assumes one); the footage does not need it, because
+   the shot's own left half IS the dark mass and can carry the copy.
+   Measured: with no scrim at all the worst hero text still holds 6.19:1,
+   because the copy sits over the near-black left half and below the glow.
+   So this is margin, not rescue — a light veil over the text half for other
+   viewport crops and future copy, and the corridor released at full strength
+   from 70% across. */
+.hero__visual.has-video {
+  inset: 0;
+  width: 100%;
+}
+.hero__visual.has-video::after {
+  background:
+    linear-gradient(90deg,
+      rgba(10, 9, 8, 0.32) 0%,
+      rgba(10, 9, 8, 0.32) 38%,
+      rgba(10, 9, 8, 0.12) 55%,
+      rgba(10, 9, 8, 0) 70%),
+    linear-gradient(180deg,
+      rgba(10, 9, 8, 0.45) 0%,
+      rgba(10, 9, 8, 0) 26%,
+      rgba(10, 9, 8, 0) 74%,
+      rgba(10, 9, 8, 0.65) 100%);
+}
+
 @keyframes hero-drift {
   from { transform: scale(1.02); }
   to   { transform: scale(1.09); }
