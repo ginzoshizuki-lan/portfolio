@@ -65,4 +65,57 @@
   } else {
     targets.forEach((el) => el.classList.add('is-visible'));
   }
+
+  /* Hero video
+     The shot is a one-way flight, so it cannot loop without a visible jump.
+     Instead it plays once on arrival and decelerates into a hold; scrolling
+     back up to the hero replays it. */
+  const heroVisual = document.querySelector('.hero__visual');
+  const heroVideo = document.getElementById('hero-video');
+  if (heroVisual && heroVideo) {
+    const RAMP = 2.2;      // seconds of deceleration at the tail
+    const MIN_RATE = 0.12;
+    let raf = 0;
+
+    const decelerate = () => {
+      const dur = heroVideo.duration;
+      if (dur && isFinite(dur)) {
+        const left = dur - heroVideo.currentTime;
+        if (left <= RAMP) {
+          const t = Math.max(0, left / RAMP);
+          heroVideo.playbackRate = MIN_RATE + (1 - MIN_RATE) * t;
+        }
+      }
+      if (!heroVideo.paused && !heroVideo.ended) raf = requestAnimationFrame(decelerate);
+    };
+
+    const play = () => {
+      if (prefersReducedMotion) return;
+      cancelAnimationFrame(raf);
+      heroVideo.playbackRate = 1;
+      if (heroVideo.readyState >= 1) {
+        try { heroVideo.currentTime = 0; } catch (_) {}
+      }
+      const p = heroVideo.play();
+      if (p && p.catch) p.catch(() => {});
+      raf = requestAnimationFrame(decelerate);
+    };
+
+    const reveal = () => heroVisual.classList.add('has-video');
+    if (heroVideo.readyState >= 2) reveal();
+    else heroVideo.addEventListener('loadeddata', reveal, { once: true });
+    heroVideo.addEventListener('error', () => heroVisual.classList.remove('has-video'));
+
+    play();
+
+    if ('IntersectionObserver' in window && !prefersReducedMotion) {
+      let wasOut = false;
+      new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          if (!e.isIntersecting) { wasOut = true; return; }
+          if (wasOut) { wasOut = false; play(); }
+        });
+      }, { threshold: 0.55 }).observe(heroVisual);
+    }
+  }
 })();

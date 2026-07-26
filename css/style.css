@@ -292,6 +292,43 @@ ul, ol { list-style: none; }
   width: 100%;
   height: 100%;
 }
+
+/* ---- Hero video ---------------------------------------------------------
+   Plays once on arrival, eases to a hold (see js/main.js), then keeps a very
+   slow scale drift so the frame never reads as frozen. The SVG beneath stays
+   in the DOM and shows whenever the video cannot play. */
+.hero__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1200ms var(--ease-out);
+  will-change: transform, opacity;
+}
+.hero__visual.has-video .hero__video {
+  opacity: 1;
+  animation: hero-drift 48s linear infinite alternate;
+}
+.hero__visual.has-video svg {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-out);
+}
+/* coreBreathe was tuned for the SVG: it pulses the container's opacity and
+   scale. On the video it reads as a wobble and fights hero-drift. */
+.hero__visual.has-video {
+  animation: none;
+}
+
+@keyframes hero-drift {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.09); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__visual.has-video .hero__video { animation: none; transform: none; }
+}
 .hero__visual::after {
   /* soft vignette to blend left edge */
   content: "";
@@ -528,6 +565,12 @@ ul, ol { list-style: none; }
     inset: 0;
     width: 100%;
     opacity: 0.55;
+  }
+  /* Full-bleed `cover` crops the 16:9 video to its centre — the brightest part
+     of the frame — and the copy sits right on top of it. 0.55 leaves the lead
+     paragraph around 4.4:1; drop it so body text keeps clear contrast. */
+  .hero__visual.has-video {
+    opacity: 0.4;
   }
   .hero__visual::after {
     background: linear-gradient(180deg, transparent, var(--color-void) 80%);

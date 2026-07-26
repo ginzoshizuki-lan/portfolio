@@ -52,6 +52,13 @@
     <!-- ============== HERO ============== -->
     <section class="hero" id="hero" aria-label="ヒーロー" data-screen-label="01 Hero">
       <div class="hero__visual" aria-hidden="true">
+        <video class="hero__video" id="hero-video"
+               muted playsinline preload="auto"
+               poster="video/hero-poster.jpg">
+          <source src="video/hero.webm" type="video/webm">
+          <source src="video/hero.mp4" type="video/mp4">
+        </video>
+
         <svg viewBox="0 0 1200 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <radialGradient id="ringGrad" cx="50%" cy="50%" r="50%">
