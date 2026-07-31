@@ -1,0 +1,11 @@
+node_modules/
+
+# build output — Vercel builds from source
+dist/
+dist-single/
+
+# local tooling
+.playwright-mcp/
+*.log
+.DS_Store
+Thumbs.db
