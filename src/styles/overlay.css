@@ -103,6 +103,24 @@ a { color: inherit; }
       transparent 42%, rgba(5,4,3,0.34) 78%, rgba(5,4,3,0.72) 100%);
 }
 
+/* ── Wrap veil ───────────────────────────────────────────────────────────
+   Ivory, not black: the final movement ends in light, so the wrap reads as
+   walking out into it. Sits above everything, including the nav, because the
+   whole point is to hide the camera being teleported back to the plaza. */
+#veil {
+  position: fixed; inset: 0;
+  z-index: 200;
+  background: var(--color-ivory);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 420ms var(--ease-in-out);
+}
+#veil.is-on { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  #veil { transition-duration: 1ms; }
+}
+
 /* ── Scroll driver ─────────────────────────────────────────────────────── */
 
 #spacer { position: relative; z-index: -1; }
@@ -520,6 +538,25 @@ a { color: inherit; }
   letter-spacing: var(--tracking-wide);
   color: var(--text-muted);
 }
+
+/* Nobody discovers a wrap they aren't told about. */
+.loop-hint {
+  display: inline-flex; align-items: center; gap: var(--space-3);
+  margin: var(--space-6) 0 0;
+  font-family: var(--font-label);
+  font-size: var(--text-micro);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-champagne-3);
+}
+.loop-hint .rule {
+  width: 40px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-champagne));
+  animation: rule-pulse 2.6s var(--ease-in-out) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .loop-hint .rule { animation: none; }
+}
+html.is-flat .loop-hint { display: none; }
 
 /* ── HUD ──────────────────────────────────────────────────────────────── */
 

@@ -125,6 +125,65 @@ function start() {
 
   wireNav(journey, scrollLength);
 
+  /* ── wrap: past the end, back to the plaza ────────────────────────────
+     Deliberately NOT automatic on reaching the bottom — the contact details
+     live there, and yanking the page away mid-read would be hostile. It takes
+     continued scrolling PAST the end, the same gesture as overscrolling. */
+  const veil = document.getElementById('veil');
+  const WRAP_OVERSCROLL = 240;   // px of continued travel at the end
+  let overscroll = 0;
+  let wrapping = false;
+
+  const atEnd = () => window.scrollY >= scrollLength() - 2;
+
+  function feedOverscroll(delta) {
+    if (wrapping) return;
+    if (delta > 0 && atEnd()) {
+      overscroll += delta;
+      if (overscroll >= WRAP_OVERSCROLL) wrap();
+    } else if (delta < 0) {
+      overscroll = 0;
+    }
+  }
+
+  function wrap() {
+    wrapping = true;
+    overscroll = 0;
+    veil.classList.add('is-on');
+
+    setTimeout(() => {
+      window.scrollTo(0, 0);
+      target = 0;
+      eased = 0;                       /* jump, don't ease back through it all */
+
+      let lifted = false;
+      const lift = () => {
+        if (lifted) return;
+        lifted = true;
+        veil.classList.remove('is-on');
+        setTimeout(() => { wrapping = false; }, 520);
+      };
+      /* Hold the veil for two frames so the plaza is already drawn behind it.
+         The timer is a backstop, not decoration: rAF is throttled to nothing
+         in a background tab, and a veil that never lifts is an entirely white
+         site. Whichever fires first wins. */
+      requestAnimationFrame(() => requestAnimationFrame(lift));
+      setTimeout(lift, 900);
+    }, 430);
+  }
+
+  addEventListener('wheel', (e) => feedOverscroll(e.deltaY), { passive: true });
+
+  let touchY = null;
+  addEventListener('touchstart', (e) => { touchY = e.touches[0].clientY; }, { passive: true });
+  addEventListener('touchmove', (e) => {
+    if (touchY === null) return;
+    const y = e.touches[0].clientY;
+    feedOverscroll(touchY - y);        /* positive when dragging up = forward */
+    touchY = y;
+  }, { passive: true });
+  addEventListener('touchend', () => { touchY = null; }, { passive: true });
+
   /* ── pointer parallax ─────────────────────────────────────────────── */
   const drift = { x: 0, y: 0 };
   const driftTarget = { x: 0, y: 0 };
@@ -145,6 +204,12 @@ function start() {
     if (!(e.key in map)) return;
     if (e.target !== document.body && e.target !== root) return;
     e.preventDefault();
+    /* Keyboard reaches the wrap too, otherwise it is a mouse-only feature.
+       End is excluded: "jump to the bottom" must not mean "start over". */
+    if (atEnd() && (e.key === 'ArrowDown' || e.key === 'PageDown')) {
+      feedOverscroll(map[e.key]);
+      return;
+    }
     scrollBy({ top: map[e.key], behavior: 'smooth' });
   });
 
