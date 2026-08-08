@@ -9,3 +9,6 @@ dist-single/
 *.log
 .DS_Store
 Thumbs.db
+
+# Generated image masters — the committed webp derivatives are what ship.
+public/paper/*.png
