@@ -1,0 +1,304 @@
+/* ==========================================================================
+   gallery.css — chrome for the lens space.
+
+   Two colour modes live on <body data-mode>: "void" (dark) and "paper"
+   (light). Everything reads from --ink / --field / --line so the toggle is a
+   single attribute flip, and the WebGL side reads the same two values back
+   out of the computed style rather than keeping its own copy.
+   ========================================================================== */
+
+body[data-mode="void"] {
+  --field: #0a0908;
+  --ink: #f3ede0;
+  --line: rgba(243, 237, 224, 0.16);
+  --line-hi: rgba(243, 237, 224, 0.34);
+  --dim: rgba(243, 237, 224, 0.52);
+}
+
+body[data-mode="paper"] {
+  --field: #ece5d6;
+  --ink: #14110d;
+  --line: rgba(20, 17, 13, 0.18);
+  --line-hi: rgba(20, 17, 13, 0.38);
+  --dim: rgba(20, 17, 13, 0.56);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  /* The gallery owns the viewport: there is nothing to scroll. The document
+     fallback re-enables scrolling by dropping .is-gl (see main.js). */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--field);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background var(--dur-slow) var(--ease-out), color var(--dur-slow) var(--ease-out);
+}
+
+/* Drag must not select text or fire the iOS callout. */
+html.is-gl body { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html.is-gl.is-fine, html.is-gl.is-fine * { cursor: none; }
+
+#gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  /* touch-action none, or the browser eats the drag for panning. */
+  touch-action: none;
+}
+html:not(.is-gl) #gl { display: none; }
+
+#grain, #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 2; }
+#grain {
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+#vignette { box-shadow: inset 0 0 22vmax 3vmax var(--field); opacity: 0.5; }
+html:not(.is-gl) #grain, html:not(.is-gl) #vignette { display: none; }
+
+.skip-link {
+  position: fixed; top: 8px; left: 8px; z-index: 200;
+  padding: 10px 16px; background: var(--ink); color: var(--field);
+  font: 500 13px/1 var(--font-label); border-radius: 2px;
+  transform: translateY(-160%); transition: transform 160ms var(--ease-out);
+}
+.skip-link:focus { transform: none; }
+
+/* ── Boot ───────────────────────────────────────────────────────────────── */
+
+.boot {
+  position: fixed; inset: 0; z-index: 90;
+  display: grid; place-content: center; gap: var(--space-6);
+  background: var(--field);
+  transition: opacity 700ms var(--ease-out), visibility 700ms;
+}
+.boot.is-done { opacity: 0; visibility: hidden; }
+.boot__mark {
+  font: 400 clamp(26px, 5vw, 44px)/0.94 var(--font-en-serif);
+  letter-spacing: 0.18em; text-align: center;
+}
+.boot__mark span { display: block; padding-left: 0.18em; color: var(--dim); }
+.boot__bar { width: min(46vw, 240px); height: 1px; background: var(--line); overflow: hidden; }
+.boot__bar i { display: block; height: 100%; width: 0%; background: var(--ink); transition: width 220ms linear; }
+.boot__pct { font: 400 11px/1 var(--font-en-mono); letter-spacing: 0.2em; color: var(--dim); text-align: center; }
+
+/* ── Instrument corners ─────────────────────────────────────────────────── */
+
+.meta {
+  position: fixed; z-index: 20;
+  font: 400 var(--text-micro)/1.6 var(--font-en-mono);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5);
+  pointer-events: none;
+}
+.meta > * { pointer-events: auto; }
+.meta--tl { top: 0; left: 0; }
+.meta--tr { top: 0; right: 0; text-align: right; }
+
+.brand { display: block; color: var(--ink); text-decoration: none; }
+.brand__kanji { font-family: var(--font-jp-serif); font-size: 13px; letter-spacing: 0.14em; }
+.brand__slash { opacity: 0.4; margin: 0 0.5em; }
+.brand__romaji { font-family: var(--font-en-sans); }
+.brand__role { margin: 4px 0 0; color: var(--dim); font-size: 10px; }
+
+.mode {
+  background: none; border: 0; padding: 0; color: var(--dim);
+  font: inherit; letter-spacing: var(--tracking-wider); text-transform: uppercase;
+}
+.mode__sep { opacity: 0.4; margin: 0 0.45em; }
+body[data-mode="void"] .mode__on,
+body[data-mode="paper"] .mode__off { color: var(--ink); }
+.clock { margin: 4px 0 0; color: var(--dim); font-size: 10px; }
+
+/* ── Wordmark ───────────────────────────────────────────────────────────── */
+
+.wordmark {
+  position: fixed; inset: 0; z-index: 4;
+  display: grid; place-content: center; text-align: center;
+  pointer-events: none; mix-blend-mode: difference;
+  transition: opacity 600ms var(--ease-out);
+}
+body[data-mode="paper"] .wordmark { mix-blend-mode: normal; }
+.wordmark.is-hidden { opacity: 0; }
+.wordmark.is-gone { opacity: 0; visibility: hidden; }
+/* Deliberately smaller than it wants to be. At 13vw the wordmark stopped
+   being a backdrop and started being a lid on the gallery — the cards read as
+   debris behind type. It has to sit under the work, not over it. */
+.wordmark__line {
+  margin: 0;
+  font: 400 clamp(38px, 7.4vw, 104px)/0.9 var(--font-en-serif);
+  letter-spacing: 0.08em;
+  color: #f3ede0;
+  opacity: 0.24;
+}
+body[data-mode="paper"] .wordmark__line { color: var(--ink); opacity: 0.14; }
+.wordmark__line--2 { padding-left: 0.1em; }
+.wordmark__sub {
+  margin: var(--space-5) 0 0;
+  font: 400 11px/1.8 var(--font-jp-serif);
+  letter-spacing: 0.24em; color: #f3ede0; opacity: 0.7;
+}
+body[data-mode="paper"] .wordmark__sub { color: var(--ink); opacity: 0.4; }
+
+/* ── Formation switcher ─────────────────────────────────────────────────── */
+
+.switch {
+  position: fixed; z-index: 30;
+  /* Centred with auto margins, not left:50%. A fixed box laid out from
+     left:50% can only shrink-to-fit inside the *remaining* half of the
+     viewport, so on a 390px screen the pill capped at 195px and swallowed
+     the fourth formation — max-width never got a say. */
+  left: 0; right: 0; margin-inline: auto; width: max-content;
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom));
+  display: flex; gap: 2px;
+  padding: 3px; border: 1px solid var(--line); border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--field) 72%, transparent);
+  backdrop-filter: blur(14px);
+  max-width: calc(100vw - var(--space-8));
+  overflow-x: auto; scrollbar-width: none;
+}
+.switch::-webkit-scrollbar { display: none; }
+.switch__item {
+  flex: 0 0 auto;
+  display: flex; align-items: baseline; gap: 0.5em;
+  padding: 9px 16px; border: 0; border-radius: var(--radius-pill);
+  background: none; color: var(--dim);
+  font: 400 11px/1 var(--font-en-mono);
+  letter-spacing: var(--tracking-wide); text-transform: uppercase;
+  transition: color var(--dur-fast) var(--ease-out), background var(--dur-fast) var(--ease-out);
+  /* 44px minimum touch target, even though the label is small. */
+  min-height: 44px;
+}
+.switch__item .jp { font-family: var(--font-jp-serif); font-size: 13px; letter-spacing: 0.1em; }
+.switch__item.is-on { color: var(--field); background: var(--ink); }
+
+.hint {
+  position: fixed; z-index: 20;
+  left: 0; right: 0; width: max-content;
+  max-width: calc(100vw - var(--space-8));
+  bottom: calc(var(--space-6) + env(safe-area-inset-bottom) + 58px);
+  /* margin-inline must come after the shorthand: a later `margin: 0` reset
+     the auto centring and pinned the hint to x = 0. */
+  margin: 0; margin-inline: auto;
+  color: var(--dim);
+  font: 400 10px/1 var(--font-en-mono); letter-spacing: var(--tracking-wider);
+  transition: opacity 500ms var(--ease-out);
+}
+.hint.is-hidden { opacity: 0; }
+.hint__coarse { display: none; }
+@media (pointer: coarse) {
+  .hint__fine { display: none; }
+  .hint__coarse { display: inline; }
+}
+
+/* ── Custom cursor (fine pointers only) ─────────────────────────────────── */
+
+.cursor { position: fixed; z-index: 80; top: 0; left: 0; pointer-events: none; display: none; }
+html.is-gl.is-fine .cursor { display: block; }
+.cursor i {
+  display: block; width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  border: 1px solid var(--line-hi); border-radius: 50%;
+  transition: transform 260ms var(--ease-out), border-color 260ms var(--ease-out);
+}
+.cursor.is-hot i { transform: scale(1.85); border-color: var(--ink); }
+.cursor.is-down i { transform: scale(0.7); }
+
+/* ── Content: hidden from sight in GL mode, never from assistive tech ───── */
+
+html.is-gl .lenses {
+  position: fixed; width: 1px; height: 1px;
+  margin: -1px; padding: 0; overflow: hidden;
+  clip-path: inset(50%); white-space: nowrap;
+}
+
+/* Hand the page back to the browser: height:100% plus overflow:hidden is what
+   lets the canvas own the viewport, and both have to go or the document
+   fallback renders at exactly one screen tall and cannot be scrolled. */
+html:not(.is-gl), html:not(.is-gl) body { height: auto; overflow: visible; }
+html:not(.is-gl) .switch,
+html:not(.is-gl) .hint,
+html:not(.is-gl) .wordmark,
+html:not(.is-gl) .boot { display: none; }
+
+.lenses {
+  position: relative; z-index: 10;
+  max-width: 72ch; margin: 0 auto;
+  padding: clamp(72px, 14vh, 160px) var(--gutter) var(--space-32);
+}
+.lenses__h1 { font: 500 var(--text-h2)/var(--leading-snug) var(--font-jp-serif); margin: 0 0 var(--space-8); }
+.lenses__intro { font: 400 var(--text-lead)/var(--leading-jp) var(--font-jp-sans); color: var(--dim); margin: 0 0 var(--space-20); }
+.lens { padding: var(--space-10) 0; border-top: 1px solid var(--line); }
+.lens h2 { font: 500 var(--text-h3)/var(--leading-snug) var(--font-jp-serif); margin: 0 0 var(--space-4); }
+.lens p { font: 400 var(--text-body)/var(--leading-jp) var(--font-jp-sans); margin: 0 0 var(--space-3); }
+.lenses__copy { margin: var(--space-20) 0 0; color: var(--dim); font-size: var(--text-caption); }
+
+/* ── Detail sheet ───────────────────────────────────────────────────────── */
+
+.sheet { position: fixed; inset: 0; z-index: 70; display: grid; }
+.sheet[hidden] { display: none; }
+.sheet__scrim {
+  position: absolute; inset: 0;
+  background: color-mix(in srgb, var(--field) 78%, transparent);
+  backdrop-filter: blur(18px);
+  animation: fade 380ms var(--ease-out);
+}
+.sheet__body {
+  position: relative; z-index: 1;
+  width: min(620px, 100%);
+  justify-self: end; align-self: stretch;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+  padding: clamp(56px, 9vh, 96px) clamp(24px, 5vw, 64px) calc(var(--space-20) + env(safe-area-inset-bottom));
+  background: var(--field);
+  border-left: 1px solid var(--line);
+  animation: slide 520ms var(--ease-glide);
+}
+@keyframes fade { from { opacity: 0; } }
+@keyframes slide { from { transform: translateX(4%); opacity: 0; } }
+
+.sheet__close {
+  position: absolute; top: var(--space-5); right: var(--space-5);
+  width: 44px; height: 44px; display: grid; place-content: center;
+  background: none; border: 1px solid var(--line); border-radius: 50%;
+  color: var(--ink); font-size: 13px; cursor: pointer;
+}
+.sheet__meta { margin: 0 0 var(--space-5); color: var(--dim); font: 400 11px/1 var(--font-en-mono); letter-spacing: var(--tracking-wider); text-transform: uppercase; }
+.sheet__sep { margin: 0 0.6em; opacity: 0.5; }
+.sheet__title { margin: 0 0 var(--space-8); font: 500 var(--text-h3)/var(--leading-snug) var(--font-jp-serif); }
+.sheet__text p { margin: 0 0 var(--space-5); font: 400 var(--text-body)/var(--leading-jp) var(--font-jp-sans); color: var(--dim); }
+.sheet__tags { margin: var(--space-8) 0 0; color: var(--dim); font: 400 11px/1.8 var(--font-en-mono); letter-spacing: var(--tracking-wide); }
+.sheet__link {
+  display: inline-block; margin-top: var(--space-6);
+  padding-bottom: 4px; border-bottom: 1px solid var(--line-hi);
+  color: var(--ink); text-decoration: none;
+  font: 400 var(--text-body-sm)/1 var(--font-en-sans); letter-spacing: var(--tracking-wide);
+}
+.sheet__link[hidden] { display: none; }
+
+/* ── Portrait phones ────────────────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .meta { padding: max(var(--space-4), env(safe-area-inset-top)) var(--space-4); }
+  .brand__romaji, .brand__role, .brand__slash { display: none; }
+  .wordmark__sub { font-size: 9px; letter-spacing: 0.18em; padding: 0 var(--space-6); }
+  .switch__item { padding: 9px 13px; }
+  .switch__item .en { display: none; }
+  .switch__item .jp { font-size: 15px; }
+  .sheet__body { justify-self: stretch; align-self: end; max-height: 86vh; border-left: 0; border-top: 1px solid var(--line); }
+  @keyframes slide { from { transform: translateY(6%); opacity: 0; } }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}

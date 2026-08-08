@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>静木 銀蔵 | Lens Space — Researcher / Practitioner</title>
+<meta name="description" content="静木銀蔵 / Ginzo Shizuki のポートフォリオ。複数の現場・思想・経歴を「レンズ」として並べ、隊形を組み替えながら見る空間。">
+<meta name="author" content="静木 銀蔵">
+<meta property="og:type" content="website">
+<meta property="og:title" content="静木 銀蔵 | Lens Space">
+<meta property="og:description" content="狭まりゆく世界に、もう少しの風通しを。">
+<meta property="og:locale" content="ja_JP">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Kaku+Gothic+New:wght@300;400;500&family=Zen+Old+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="/src/styles/tokens.css">
+<link rel="stylesheet" href="/src/gallery/gallery.css">
+</head>
+<body class="space" data-mode="void">
+<a href="#lenses" class="skip-link">本文へスキップ</a>
+
+<!-- ===== WebGL stage ===== -->
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="grain" aria-hidden="true"></div>
+<div id="vignette" aria-hidden="true"></div>
+
+<!-- ===== Preloader ===== -->
+<div class="boot" id="boot" aria-hidden="true">
+  <div class="boot__mark">LENS<span>SPACE</span></div>
+  <div class="boot__bar"><i id="boot-fill"></i></div>
+  <div class="boot__pct" id="boot-pct">0</div>
+</div>
+
+<!-- ===== Instrument chrome ===== -->
+<header class="meta meta--tl">
+  <a class="brand" href="#lenses">
+    <span class="brand__kanji">静木銀蔵</span>
+    <span class="brand__slash">/</span>
+    <span class="brand__romaji">Ginzo Shizuki</span>
+  </a>
+  <p class="brand__role">Researcher &amp; Practitioner</p>
+</header>
+
+<div class="meta meta--tr">
+  <button class="mode" id="mode" type="button" aria-live="polite">
+    <span class="mode__on">Void</span><span class="mode__sep">/</span><span class="mode__off">Paper</span>
+  </button>
+  <p class="clock"><span id="clock">JST --:--</span></p>
+</div>
+
+<!-- Centre wordmark. Fades out while the visitor is dragging. -->
+<div class="wordmark" id="wordmark" aria-hidden="true">
+  <p class="wordmark__line">LENS</p>
+  <p class="wordmark__line wordmark__line--2">SPACE</p>
+  <p class="wordmark__sub">狭まりゆく世界に、もう少しの風通しを。</p>
+</div>
+
+<!-- ===== Formation switcher ===== -->
+<nav class="switch" id="switch" aria-label="隊形の切り替え">
+  <button class="switch__item is-on" type="button" data-form="ring"><span class="jp">環</span><span class="en">Ring</span></button>
+  <button class="switch__item" type="button" data-form="helix"><span class="jp">螺旋</span><span class="en">Helix</span></button>
+  <button class="switch__item" type="button" data-form="grid"><span class="jp">格子</span><span class="en">Grid</span></button>
+  <button class="switch__item" type="button" data-form="drift"><span class="jp">散逸</span><span class="en">Drift</span></button>
+</nav>
+
+<p class="hint" id="hint" aria-hidden="true"><span class="hint__fine">ドラッグで回す · クリックで開く</span><span class="hint__coarse">なぞって回す · タップで開く</span></p>
+
+<div class="cursor" id="cursor" aria-hidden="true"><i></i></div>
+
+<!-- ==========================================================================
+     CONTENT — the single source of truth.
+
+     The gallery reads these nodes at boot and builds one plane per <article>.
+     When WebGL is unavailable (or the visitor asked for reduced motion) the
+     same markup simply renders as a document, so text, SEO and screen readers
+     never depend on the canvas. Edit here, not in JS.
+     ========================================================================== -->
+<main id="lenses" class="lenses">
+  <h1 class="lenses__h1">静木 銀蔵 — Lens Space</h1>
+  <p class="lenses__intro">
+    机上にて、組織や社会の現実が言葉と物語によってどう編まれるかを研究する。
+    実践にて、複数の事業や活動を通じて、別のレンズを社会に差し込む。
+  </p>
+
+  <article class="lens" data-num="01" data-cat="Work" data-title="合同会社BWH総合研究所" data-tags="Organization Design / Narrative / Dialogue" data-link="https://bwh-research.com" data-link-label="bwh-research.com">
+    <h2>合同会社BWH総合研究所</h2>
+    <p>組織の「現実」は、そこで交わされる対話によって編まれている。社会構成主義・物語論を背景に、対話を通じた企業の組織デザイン・組織開発に設計・伴走する。</p>
+  </article>
+
+  <article class="lens" data-num="02" data-cat="Work" data-title="Kyobo合同会社" data-tags="Board Game / Learning / Experience" data-link="https://kyodai-boardgame.com" data-link-label="kyodai-boardgame.com">
+    <h2>Kyobo合同会社</h2>
+    <p>「正解を当てる」学びから、「意味を構成する」遊びへ。ボードゲーム・マーダーミステリーの自社開発と、法人向けゲーム制作。</p>
+  </article>
+
+  <article class="lens" data-num="03" data-cat="Work" data-title="一般社団法人 e-donuts" data-tags="Inquiry / Children / Platform" data-link="https://www.e-donuts.com/" data-link-label="e-donuts.com">
+    <h2>一般社団法人 e-donuts</h2>
+    <p>子どもの問いを、大人の「正解」で上書きしない教育を。京都を拠点に、探究学習のプログラム開発とプラットフォーム構築。</p>
+  </article>
+
+  <article class="lens" data-num="04" data-cat="Work" data-title="株式会社ツカイシ" data-tags="Beauty / Data / Communication">
+    <h2>株式会社ツカイシ</h2>
+    <p>対面の会話に埋もれている構造を、データとして浮かび上がらせる。美容領域を起点とした、コミュニケーションの可視化と価値再設計。</p>
+  </article>
+
+  <article class="lens" data-num="05" data-cat="Belief" data-title="問題意識" data-tags="Discourse / Homogeneity">
+    <h2>問題意識</h2>
+    <p>効率、資本、学歴。支配的な言説は、世界の見え方を均質にする。問題は「どの基準が正しいか」ではない。別の見え方がありえたことすら、忘れられていくことだ。</p>
+  </article>
+
+  <article class="lens" data-num="06" data-cat="Belief" data-title="ミッション" data-tags="Local / Knowledge / Bridge">
+    <h2>ミッション</h2>
+    <p>ローカルの現場には、まだ言語化されていない知がある。一方、あるローカルには届いていない知もある。その双方のあいだに立ち、別の現実の可能性を提示し続ける。</p>
+  </article>
+
+  <article class="lens" data-num="07" data-cat="Belief" data-title="立ち位置" data-tags="Inside / Practice">
+    <h2>立ち位置</h2>
+    <p>資本主義の外側から批判するのではなく、その内側で別のレンズを探究し、社会に提案し続けたい。様々な可能性を新たな現実として社会に埋め込んでいきたい。研究者であり、実践者であること。それが私です。</p>
+  </article>
+
+  <article class="lens" data-num="08" data-cat="Profile" data-title="研究者であり、実践者。" data-tags="Kyoto / Tokyo / Fukui" data-portrait="/portrait_ginzo.jpg">
+    <h2>研究者であり、実践者。</h2>
+    <p>京都大学大学院 人間環境学研究科 博士課程。合同会社BWH総合研究所 代表社員、Kyobo合同会社 代表社員、株式会社ツカイシ COO 兼 Founder、一般社団法人 e-donuts 理事。</p>
+    <p>2017 福井県立藤島高等学校 卒業 / 2021 京都大学 総合人間学部 卒業 / 2023 同大学院 修士課程 修了 / 2024— 同 博士課程 在籍。</p>
+    <p>京都・東京・福井の3点を移動しながら生活。対話や物語によって、組織や社会の「現実」はどう作られ、どう変わっていくのか — そんな問いを研究しています。</p>
+  </article>
+
+  <article class="lens" data-num="09" data-cat="Writing" data-title="言葉は、世界を切り取るレンズである。" data-tags="Substack / note">
+    <h2>言葉は、世界を映す鏡ではなく、世界を切り取るレンズである。</h2>
+    <p>公開準備中。インタビュー、登壇、寄稿、掲載情報などを順次追加していきます。</p>
+  </article>
+
+  <article class="lens" data-num="10" data-cat="Contact" data-title="対話は、いつでも開かれています。" data-tags="Mail / X / Instagram" data-link="mailto:ginzoshizuki@gmail.com" data-link-label="ginzoshizuki@gmail.com">
+    <h2>対話は、いつでも開かれています。</h2>
+    <p>事業の相談、研究の議論、取材、あるいはただの雑談まで。</p>
+  </article>
+
+  <p class="lenses__copy">© <span id="year">2026</span> Ginzo Shizuki　—　狭まりゆく世界に、もう少しの風通しを。</p>
+</main>
+
+<!-- ===== Detail sheet ===== -->
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" hidden>
+  <div class="sheet__scrim" data-close></div>
+  <article class="sheet__body">
+    <button class="sheet__close" type="button" data-close aria-label="閉じる">✕</button>
+    <p class="sheet__meta"><span id="sheet-num">01</span><span class="sheet__sep">—</span><span id="sheet-cat">Work</span></p>
+    <h2 class="sheet__title" id="sheet-title"></h2>
+    <div class="sheet__text" id="sheet-text"></div>
+    <p class="sheet__tags" id="sheet-tags"></p>
+    <a class="sheet__link" id="sheet-link" target="_blank" rel="noopener" hidden></a>
+  </article>
+</div>
+
+<noscript>
+  <style>#gl,.boot,.switch,.wordmark,.hint,.cursor{display:none!important}.lenses{position:static!important;opacity:1!important;pointer-events:auto!important}</style>
+</noscript>
+
+<script type="module" src="/src/gallery/main.js"></script>
+</body>
+</html>

@@ -13,11 +13,15 @@ export default defineConfig({
   build: {
     target: 'es2020',
     assetsInlineLimit: 0,
-    /* / is the shipped flythrough; /paper.html is this branch's variant.
-       Both build so the two can be compared from one deploy. */
+    /* Three takes on the same content, built together so they can be compared
+       from one server instead of by switching branches:
+         /             architectural flythrough (what is live today)
+         /gallery.html Lens Space — the fluid gallery
+         /paper.html   Paper Space — paper, type and a long quiet scroll */
     rollupOptions: {
       input: {
         main: resolve(here, 'index.html'),
+        gallery: resolve(here, 'gallery.html'),
         paper: resolve(here, 'paper.html'),
       },
     },
