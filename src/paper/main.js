@@ -25,10 +25,20 @@ document.getElementById('yr').textContent = new Date().getFullYear();
 /* ── Split the display type into characters ───────────────────────────── */
 
 /* The ripple has to move the words, not just the dust behind them, and the
-   only way to make a line undulate is to be able to move its letters
-   independently. Screen readers get the original string back through
-   aria-label; the pieces are hidden from them. */
-function splitChars(el) {
+   only way to make a line undulate is to move its letters independently.
+   Two rules make that safe, both learned the hard way:
+
+   1. Every letter goes inside a word wrapper. A bare inline-block letter is an
+      atomic inline box, and the browser will happily break a line between any
+      two of them — "Registers" came out as "Register / s".
+   2. Japanese is not split at all. Its headings rely on `word-break: keep-all`
+      to hold 熟語 together, and per-character boxes defeat that along with
+      every other line-breaking rule the language has. Those ripple whole,
+      which reads as a sway and costs nothing.
+
+   Screen readers get the original string back through aria-label; the pieces
+   are hidden from them. */
+function splitLatin(el) {
   if (el.dataset.split) return;
   const text = el.textContent.replace(/\s+/g, ' ').trim();
   const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -37,22 +47,36 @@ function splitChars(el) {
 
   for (const node of nodes) {
     const frag = document.createDocumentFragment();
-    for (const ch of node.nodeValue) {
-      if (ch === ' ') { frag.appendChild(document.createTextNode(' ')); continue; }
-      const s = document.createElement('span');
-      s.className = 'ch';
-      s.textContent = ch;
-      frag.appendChild(s);
+    for (const word of node.nodeValue.split(/(\s+)/)) {
+      if (!word) continue;
+      if (/^\s+$/.test(word)) { frag.appendChild(document.createTextNode(' ')); continue; }
+      const w = document.createElement('span');
+      w.className = 'wd';
+      const letters = [...word];
+      letters.forEach((ch, i) => {
+        const s = document.createElement('span');
+        /* Trailing punctuation is styled here rather than wrapped in its own
+           <em> in the markup: as a separate element it became its own word
+           box and wrapped onto a line by itself. */
+        const punct = i >= letters.length - 1 && /[.,;:!?]/.test(ch);
+        s.className = punct ? 'ch ch--punct' : 'ch';
+        s.textContent = ch;
+        w.appendChild(s);
+      });
+      frag.appendChild(w);
     }
     node.parentNode.replaceChild(frag, node);
   }
   el.setAttribute('aria-label', text);
-  for (const s of el.querySelectorAll('.ch')) s.setAttribute('aria-hidden', 'true');
+  for (const s of el.querySelectorAll('.wd')) s.setAttribute('aria-hidden', 'true');
   el.dataset.split = '1';
 }
 
-const rippleTargets = [...document.querySelectorAll('.hero__line, .h-en, .h-jp')];
-if (!reduced) rippleTargets.forEach(splitChars);
+/* Latin display type ripples letter by letter; Japanese headings ripple as a
+   single block. */
+const charTargets = [...document.querySelectorAll('.hero__line, .h-en')];
+const blockTargets = [...document.querySelectorAll('.h-jp')];
+if (!reduced) charTargets.forEach(splitLatin);
 
 /* ── Reveal ───────────────────────────────────────────────────────────── */
 
@@ -141,12 +165,19 @@ function measure() {
 
   chars.length = 0;
   if (reduced) return;
-  for (const el of rippleTargets) {
+  for (const el of charTargets) {
     for (const ch of el.querySelectorAll('.ch')) {
       const r = ch.getBoundingClientRect();
       if (!r.width) continue;
-      chars.push({ el: ch, x: r.left + window.scrollX + r.width / 2, y: r.top + y + r.height / 2, dx: 0, dy: 0 });
+      chars.push({ el: ch, x: r.left + window.scrollX + r.width / 2, y: r.top + y + r.height / 2, dx: 0, dy: 0, k: 1 });
     }
+  }
+  for (const el of blockTargets) {
+    const r = el.getBoundingClientRect();
+    if (!r.width) continue;
+    /* A whole heading swinging as far as a single letter would look like a
+       glitch, so the block movers are damped hard. */
+    chars.push({ el, x: r.left + window.scrollX + r.width / 2, y: r.top + y + r.height / 2, dx: 0, dy: 0, k: 0.28 });
   }
 }
 
@@ -265,8 +296,8 @@ function frame(now) {
     }
 
     /* Ease back rather than snapping, so letting go of a wave settles. */
-    c.dx += (dx - c.dx) * 0.35;
-    c.dy += (dy - c.dy) * 0.35;
+    c.dx += (dx * c.k - c.dx) * 0.35;
+    c.dy += (dy * c.k - c.dy) * 0.35;
     if (Math.abs(c.dx) < 0.05 && Math.abs(c.dy) < 0.05) {
       if (c.el.style.transform) c.el.style.transform = '';
       continue;

@@ -74,6 +74,16 @@ img { display: block; max-width: 100%; }
 
 /* ── Corner chrome ──────────────────────────────────────────────────────── */
 
+/* The corner chrome floats over whatever section happens to be under it, and
+   some of those plates are bright. These two scrims sit above the dust and
+   below the chrome so the labels stay readable everywhere. */
+body::before, body::after {
+  content: ""; position: fixed; left: 0; right: 0; z-index: 10;
+  height: 20vh; pointer-events: none;
+}
+body::before { top: 0; background: linear-gradient(to bottom, rgba(10, 8, 1, 0.72), transparent); }
+body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72), transparent); }
+
 .chrome {
   position: fixed; z-index: 20;
   padding: max(var(--pad), env(safe-area-inset-top)) var(--pad);
@@ -145,12 +155,22 @@ img { display: block; max-width: 100%; }
   z-index: 1;
 }
 
-.mv__body { position: relative; z-index: 2; max-width: 46ch; }
+/* `ch` here resolves against the *body* font, not the display font, so
+   `max-width: 46ch` came out around 430px — narrower than a single word of a
+   152px heading. The headings were overflowing and being clipped by the
+   section, and the column looked marooned on the left of a wide screen.
+   The copy keeps a readable measure; the display type gets its own. */
+.mv__body { position: relative; z-index: 2; max-width: clamp(300px, 40vw, 570px); }
 .mv--flip .mv__body { justify-self: end; text-align: left; }
 
-/* One letter of split display type. inline-block so it can be transformed at
-   all; the ripple writes translate3d straight onto these. */
-.ch { display: inline-block; white-space: pre; }
+/* Split display type. `.wd` keeps a word atomic — without it the browser
+   treats every letter as its own inline-block and breaks lines between them,
+   which turned "Registers" into "Register / s". `.ch` is the piece the ripple
+   actually moves. */
+.wd { display: inline-block; white-space: nowrap; }
+.ch { display: inline-block; }
+/* What the <em> around a trailing period used to do, without the orphan. */
+.ch--punct { font-style: italic; color: var(--dim); }
 
 /* ── Plates ─────────────────────────────────────────────────────────────── */
 
@@ -189,7 +209,18 @@ img { display: block; max-width: 100%; }
 .mv--flip .plate[data-p="sub"]  { right: auto; left: calc(var(--lead-w) - 5vw); }
 .mv--flip .plate[data-p="chip"] { right: auto; left: calc(var(--lead-w) + 2vw); }
 
-.plate--portrait { width: min(24vw, 290px); }
+/* Doubled up on purpose: a bare `.plate--portrait` loses to
+   `.plate[data-p="lead"]` on specificity, so the portrait was silently taking
+   the full lead width and sitting on top of the profile copy. */
+.plate.plate--portrait { width: min(24vw, 290px); }
+/* The one real photograph is a studio shot on a pale background, and at full
+   strength it punches a white hole through a page built at #0a0801 — and takes
+   the navigation with it. Graded into the same key rather than replaced: it is
+   still clearly him, just lit like everything else here. */
+.plate--portrait img { filter: brightness(0.6) contrast(1.06) saturate(0.72) sepia(0.16); }
+.plate--portrait::after {
+  background: linear-gradient(to top, rgba(10, 8, 1, 0.6), rgba(10, 8, 1, 0.18) 55%, rgba(10, 8, 1, 0.34));
+}
 
 /* ── Type ───────────────────────────────────────────────────────────────── */
 
@@ -202,18 +233,36 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.34em; text-transform: uppercase; color: var(--faint);
 }
 
+/* Display type is allowed out of the copy column and over the plates — which
+   is what Izanami does constantly — so it needs its own measure and a layer
+   above the images. */
 .h-en {
   margin: 0 0 var(--space-8);
-  font: 400 clamp(56px, 9.6vw, 152px)/0.88 var(--en);
+  position: relative; z-index: 3;
+  /* `width: max-content` is what actually lets the display type out of the
+     copy column — a plain max-width is still clamped by the parent, so the
+     headings were being wrapped at the column edge and nowhere near the 800px
+     they were allowed. */
+  width: max-content;
+  max-width: min(58vw, 800px);
+  font: 400 clamp(50px, 8.4vw, 128px)/0.88 var(--en);
   letter-spacing: -0.005em;
 }
 .h-en em { font-style: italic; color: var(--dim); }
 
 .h-jp {
   margin: 0 0 var(--space-6);
+  position: relative; z-index: 3;
+  width: max-content;
+  max-width: min(46vw, 640px);
   font: 500 clamp(23px, 2.7vw, 38px)/1.55 var(--jp);
   letter-spacing: 0.05em;
-  word-break: keep-all;
+  /* Not `keep-all`. That rule forbids a break between any two CJK characters,
+     which is fine for a company name and fatal for a sentence — the long
+     Writings and Contact headings simply ran off the line. `strict` gives
+     ordinary Japanese wrapping with proper kinsoku instead. */
+  word-break: normal;
+  line-break: strict;
 }
 .h-jp--big { font-size: clamp(22px, 2.5vw, 34px); line-height: 1.85; }
 .h-jp em { font-style: normal; color: var(--dim); }
@@ -260,7 +309,9 @@ img { display: block; max-width: 100%; }
   font: 400 clamp(44px, 7.6vw, 128px)/1.04 var(--en);
   letter-spacing: -0.008em;
 }
-.hero__line span { display: block; }
+/* Direct children only. As a descendant selector this also matched every
+   split letter and stacked the headline one character per line. */
+.hero__line > span { display: block; }
 .hero__line em { font-style: italic; color: var(--dim); }
 /* Wider than the display lines above it: at 22ch the tracking pushed it onto
    two lines and broke もう少し in half. */
@@ -291,7 +342,7 @@ img { display: block; max-width: 100%; }
 
 /* ── Profile ────────────────────────────────────────────────────────────── */
 
-.mv--profile .mv__body { max-width: 60ch; }
+.mv--profile .mv__body { max-width: clamp(300px, 62vw, 860px); }
 .prof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-10) var(--space-12); margin-top: var(--space-10); }
 .prof__blk h4 { margin: 0 0 var(--space-4); font: 400 10px/1 var(--mono); letter-spacing: 0.24em; text-transform: uppercase; color: var(--dim); }
 .prof__blk ul { margin: 0; padding: 0; list-style: none; }
@@ -318,10 +369,22 @@ img { display: block; max-width: 100%; }
 .rv { opacity: 0; transform: translateY(18px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
 .rv.is-in { opacity: 1; transform: none; }
 /* Stagger the hero lines by hand — they are the first thing anyone sees. */
-.hero__line.is-in span { animation: line 1100ms var(--ease) backwards; }
-.hero__line.is-in span:nth-child(2) { animation-delay: 120ms; }
-.hero__line.is-in span:nth-child(3) { animation-delay: 240ms; }
+/* Direct children again: as a descendant selector this staggered every split
+   letter instead of the three lines. */
+.hero__line.is-in > span { animation: line 1100ms var(--ease) backwards; }
+.hero__line.is-in > span:nth-child(2) { animation-delay: 120ms; }
+.hero__line.is-in > span:nth-child(3) { animation-delay: 240ms; }
 @keyframes line { from { opacity: 0; transform: translateY(0.5em); } }
+
+/* ── Laptops ────────────────────────────────────────────────────────────── */
+
+/* Profile is the one section carrying a two-column detail grid *and* a plate.
+   Below this width the grid reaches far enough right to run under the
+   portrait, so it goes single-column before that happens. */
+@media (max-width: 1200px) {
+  .mv--profile .mv__body { max-width: clamp(300px, 54vw, 600px); }
+  .prof { grid-template-columns: 1fr; gap: var(--space-8); }
+}
 
 /* ── Phones ─────────────────────────────────────────────────────────────── */
 
@@ -351,7 +414,11 @@ img { display: block; max-width: 100%; }
   }
   .mv--flip .plate[data-p="chip"] { left: auto; right: 14%; }
   .plate--portrait { width: min(50vw, 220px); }
-  .mv__body, .mv--flip .mv__body { max-width: none; justify-self: stretch; }
+  /* The desktop measures are all vw-based, which on a 390px screen left the
+     Japanese headings 179px wide. Nothing is competing for horizontal space
+     down here, so every column runs full width. */
+  .mv__body, .mv--flip .mv__body, .mv--profile .mv__body { max-width: none; justify-self: stretch; }
+  .h-en, .h-jp, .hero__line, .lead, .body { max-width: none; width: auto; }
   .mv[data-label]:not([data-label=""])::before { left: 4px; letter-spacing: 0.36em; }
   .prof { grid-template-columns: 1fr; gap: var(--space-8); }
   .chrome { font-size: 10px; padding: max(16px, env(safe-area-inset-top)) 16px; }
@@ -367,5 +434,5 @@ img { display: block; max-width: 100%; }
   #air { display: none; }
   .mv__bg img, .plate { transform: none !important; }
   .scroll-cue__rule::after { animation: none; }
-  .hero__line.is-in span { animation: none; }
+  .hero__line.is-in > span { animation: none; }
 }
