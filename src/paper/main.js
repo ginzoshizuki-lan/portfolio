@@ -68,7 +68,22 @@ if (targets.length && 'IntersectionObserver' in window) {
 
 /* ── Motion loop ──────────────────────────────────────────────────────── */
 
-const air = [...document.querySelectorAll('.air__l')];
+const airCanvas = document.getElementById('air');
+let air = null;
+if (!reduced && airCanvas) {
+  /* Deferred, and not awaited: the dust is atmosphere, and the page must not
+     wait on a shader to become readable. (No top-level await — the build
+     targets es2020.) */
+  import('./air.js')
+    .then(({ createAir }) => {
+      air = createAir(airCanvas);
+      if (!air) airCanvas.classList.add('is-dead');
+    })
+    .catch(() => airCanvas.classList.add('is-dead'));
+} else if (airCanvas) {
+  airCanvas.classList.add('is-dead');
+}
+
 const progFill = document.getElementById('prog-fill');
 const progNum = document.getElementById('prog');
 
@@ -79,7 +94,7 @@ const movers = [
 ].map((el) => ({ el, depth: 0.10, box: el.closest('.mv') }));
 
 movers.push(
-  ...[...document.querySelectorAll('.mv__plate')].map((el) => ({
+  ...[...document.querySelectorAll('.plate')].map((el) => ({
     el,
     depth: parseFloat(el.dataset.depth || '0.15'),
     box: el.closest('.mv'),
@@ -111,13 +126,8 @@ function frame(now) {
   progNum.textContent = String(Math.round(p * 100)).padStart(2, '0');
 
   if (!reduced) {
-    /* Dust: constant drift plus a gentle pull from the scroll, so the air
-       feels attached to the room rather than painted on the glass. */
-    const t = now * 0.001;
-    air[0].style.transform =
-      `translate3d(${Math.sin(t * 0.05) * 3}vmax, ${-y * 0.06 + Math.cos(t * 0.04) * 3}px, 0)`;
-    air[1].style.transform =
-      `translate3d(${Math.cos(t * 0.035) * 5}vmax, ${-y * 0.14 + Math.sin(t * 0.03) * 5}px, 0)`;
+    /* The air runs its own loop; it only needs to know where we are. */
+    if (air) air.setScroll(p);
 
     for (const m of movers) {
       const r = m.box.getBoundingClientRect();
@@ -136,3 +146,29 @@ function frame(now) {
 }
 
 requestAnimationFrame(frame);
+
+/* ── #perf ────────────────────────────────────────────────────────────── */
+
+/* Frame rate cannot be measured from a headless or backgrounded browser — the
+   readings taken while building this showed 16fps with every effect switched
+   off — so the only honest number comes from the real machine. Add #perf to
+   the URL and it shows in the corner. */
+if (location.hash === '#perf') {
+  const hud = document.createElement('p');
+  hud.style.cssText = 'position:fixed;z-index:300;left:50%;top:8px;translate:-50% 0;margin:0;'
+    + 'padding:6px 12px;background:rgba(10,8,1,.8);color:#d9d7d4;'
+    + 'font:400 11px/1 ui-monospace,monospace;letter-spacing:.12em;pointer-events:none';
+  document.body.appendChild(hud);
+  let n = 0, t0 = performance.now(), worst = 0, prev = t0;
+  (function sample() {
+    requestAnimationFrame(sample);
+    const t = performance.now();
+    worst = Math.max(worst, t - prev);
+    prev = t;
+    n++;
+    if (t - t0 >= 500) {
+      hud.textContent = `${Math.round((n * 1000) / (t - t0))} FPS · worst ${worst.toFixed(0)}ms · air ${air ? 'on' : 'off'}`;
+      n = 0; t0 = t; worst = 0;
+    }
+  })();
+}

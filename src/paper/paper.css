@@ -21,6 +21,10 @@
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --pad: clamp(20px, 4vw, 56px);
+  /* Izanami never sets text against the edge of the screen — the copy starts
+     roughly a quarter of the way in and the only thing living at the margin
+     is the vertical label. This is that indent. */
+  --inset: clamp(24px, 13vw, 210px);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -50,32 +54,18 @@ img { display: block; max-width: 100%; }
 
 /* ── Atmosphere ─────────────────────────────────────────────────────────── */
 
-.air, .grain { position: fixed; inset: 0; pointer-events: none; }
-.air { z-index: 4; }
-.air__l {
-  position: absolute;
-  /* Oversized so the drift never exposes an edge. */
-  inset: -25%;
-  /* Cover, not repeat. The dust plates are photographs and their edges do not
-     tile — repeating them drew a hard cross through the middle of the screen.
-     Tiling also blew the motes up to raindrop size; covering a 150% box holds
-     them near their shot scale. */
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: cover;
-  mix-blend-mode: screen;
-  will-change: transform;
+/* One GL canvas replaces what used to be two `screen` dust layers and an
+   `overlay` grain layer. Those three cost a median 37.7ms per frame while
+   scrolling; the compositor was re-blending the whole viewport on every move.
+   No blend mode here — air.js draws additively inside GL. */
+#air {
+  position: fixed; inset: 0; z-index: 4;
+  width: 100%; height: 100%;
+  pointer-events: none;
 }
-/* Kept faint on purpose. The plates carry large, near-focus bokeh; at any real
-   strength they stop reading as air in the room and start reading as water on
-   the lens. */
-.air__l[data-air="1"] { opacity: 0.15; }
-.air__l[data-air="2"] { opacity: 0.09; filter: blur(1.5px); }
-
-.grain {
-  z-index: 5; opacity: 0.045; mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
-}
+/* If GL never starts, the page simply has no dust. That is a fair trade: the
+   photographs carry the atmosphere on their own. */
+#air.is-dead { display: none; }
 
 /* ── Corner chrome ──────────────────────────────────────────────────────── */
 
@@ -114,9 +104,13 @@ img { display: block; max-width: 100%; }
   min-height: 100svh;
   display: grid;
   align-items: center;
-  padding: clamp(96px, 16vh, 180px) var(--pad);
+  padding: clamp(96px, 16vh, 180px) var(--pad) clamp(96px, 16vh, 180px) var(--inset);
   /* Sections overlap the fixed chrome, so keep content out of the corners. */
   isolation: isolate;
+  /* A plate can travel a couple of hundred pixels under parallax; without
+     this the fast ones climbed out of their own section and turned up in the
+     hero. Clips the small negative right offset too, which reads the same. */
+  overflow: hidden;
 }
 
 .mv__bg { position: absolute; inset: 0; overflow: hidden; z-index: -2; }
@@ -152,60 +146,77 @@ img { display: block; max-width: 100%; }
 
 /* ── Plates ─────────────────────────────────────────────────────────────── */
 
-.mv__plate {
-  position: absolute; z-index: 1; margin: 0;
-  right: calc(var(--pad) * -0.5);
-  top: 50%;
-  width: min(34vw, 420px);
+/* A section can carry up to three plates at different sizes and depths, the
+   way Izanami stacks its Philosophy images, instead of one photograph parked
+   beside the text. `lead` is the subject; `sub` and `chip` are details that
+   overlap it and move faster, which is what makes the group read as depth
+   rather than as a collage. */
+.plates { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+
+.plate {
+  position: absolute; margin: 0; overflow: hidden;
   /* Centring goes on `translate`, not `transform`: the parallax loop owns
      `transform`, and writing to it would otherwise drop the -50% and shove
      every plate half its own height down the page. */
-  translate: 0 -50%;
-  overflow: hidden;
   will-change: transform;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
 }
-.mv--flip .mv__plate { right: auto; left: calc(var(--pad) * -0.5); }
-.mv__plate img { width: 100%; height: auto; }
-.mv__plate::after {
+.plate img { width: 100%; height: auto; }
+.plate::after {
   content: ""; position: absolute; inset: 0;
-  background: linear-gradient(to top, rgba(10, 8, 1, 0.55), transparent 60%);
+  background: linear-gradient(to top, rgba(10, 8, 1, 0.5), transparent 62%);
 }
-.mv__plate--portrait { width: min(26vw, 300px); top: auto; bottom: 8vh; translate: 0; }
+
+.plate[data-p="lead"] { right: calc(var(--pad) * -0.6); top: 50%; translate: 0 -50%; width: min(31vw, 400px); }
+.plate[data-p="sub"]  { right: calc(var(--pad) * 6.5); top: 12%;  width: min(15vw, 186px); }
+.plate[data-p="chip"] { right: calc(var(--pad) * 1.6); bottom: 9%; width: min(10.5vw, 132px); }
+
+.mv--flip .plate[data-p="lead"] { right: auto; left: calc(var(--pad) * -0.6); }
+.mv--flip .plate[data-p="sub"]  { right: auto; left: calc(var(--pad) * 6.5); }
+.mv--flip .plate[data-p="chip"] { right: auto; left: calc(var(--pad) * 1.6); }
+
+.plate--portrait { width: min(24vw, 290px); }
 
 /* ── Type ───────────────────────────────────────────────────────────────── */
 
+/* The scale is deliberately extreme: 10px labels against a 150px display, so
+   roughly 15:1. The previous set topped out around 5:1 and read as evenly
+   sized — everything important and nothing dominant. */
 .eyebrow {
-  margin: 0 0 var(--space-5);
-  font: 400 11px/1 var(--mono);
-  letter-spacing: 0.28em; text-transform: uppercase; color: var(--dim);
+  margin: 0 0 var(--space-6);
+  font: 400 10px/1 var(--mono);
+  letter-spacing: 0.34em; text-transform: uppercase; color: var(--faint);
 }
 
 .h-en {
   margin: 0 0 var(--space-8);
-  font: 400 clamp(46px, 7.4vw, 116px)/0.94 var(--en);
-  letter-spacing: 0.01em;
+  font: 400 clamp(56px, 9.6vw, 152px)/0.88 var(--en);
+  letter-spacing: -0.005em;
 }
 .h-en em { font-style: italic; color: var(--dim); }
 
 .h-jp {
   margin: 0 0 var(--space-6);
-  font: 500 clamp(26px, 3.4vw, 44px)/1.5 var(--jp);
-  letter-spacing: 0.04em;
+  font: 500 clamp(23px, 2.7vw, 38px)/1.55 var(--jp);
+  letter-spacing: 0.05em;
   word-break: keep-all;
 }
-.h-jp--big { font-size: clamp(24px, 3vw, 40px); line-height: 1.75; }
+.h-jp--big { font-size: clamp(22px, 2.5vw, 34px); line-height: 1.85; }
 .h-jp em { font-style: normal; color: var(--dim); }
 
+/* The numeral is a graphic, not a caption: big, faint, and sitting behind the
+   title rather than above it. */
 .num {
-  margin: 0 0 var(--space-4);
-  font: 400 clamp(30px, 3.4vw, 46px)/1 var(--en);
-  color: var(--faint);
+  margin: 0 0 -0.28em;
+  font: 400 clamp(56px, 7.6vw, 116px)/0.85 var(--en);
+  color: rgba(217, 215, 212, 0.13);
+  letter-spacing: 0.02em;
 }
 
-.lead { margin: 0 0 var(--space-5); font: 400 clamp(15px, 1.35vw, 19px)/2.05 var(--jp); color: var(--ink); }
+.lead { margin: 0 0 var(--space-5); max-width: 34ch; font: 400 clamp(15px, 1.3vw, 18px)/2.15 var(--jp); color: var(--ink); }
 .lead em { font-style: normal; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
-.body { margin: 0 0 var(--space-6); font: 400 clamp(14px, 1.1vw, 16px)/2.1 var(--jp); color: var(--dim); }
-.tags { margin: 0 0 var(--space-5); font: 400 11px/1.9 var(--mono); letter-spacing: 0.1em; color: var(--faint); }
+.body { margin: 0 0 var(--space-6); max-width: 36ch; font: 400 clamp(13px, 1.02vw, 15px)/2.25 var(--jp); color: var(--dim); }
+.tags { margin: 0 0 var(--space-6); font: 400 10px/2 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
 
 .link {
   display: inline-block; color: var(--ink); text-decoration: none;
@@ -232,8 +243,8 @@ img { display: block; max-width: 100%; }
 .hero__line {
   margin: 0 0 var(--space-8);
   max-width: 22ch;
-  font: 400 clamp(40px, 6.6vw, 104px)/1.1 var(--en);
-  letter-spacing: 0.005em;
+  font: 400 clamp(44px, 7.6vw, 128px)/1.04 var(--en);
+  letter-spacing: -0.008em;
 }
 .hero__line span { display: block; }
 .hero__line em { font-style: italic; color: var(--dim); }
@@ -305,15 +316,27 @@ img { display: block; max-width: 100%; }
     /* Plate first, then words: on a narrow screen an absolutely positioned
        plate would sit on top of the text instead of beside it. */
     display: flex; flex-direction: column; justify-content: center;
-    gap: var(--space-8);
-    padding: clamp(104px, 18vh, 160px) var(--pad) clamp(96px, 16vh, 150px);
+    gap: var(--space-10);
+    padding: clamp(104px, 18vh, 160px) var(--pad) clamp(112px, 18vh, 170px);
   }
-  .mv__plate, .mv--flip .mv__plate {
-    position: static; translate: 0;
-    width: min(72vw, 320px); align-self: flex-end;
+  /* The stack keeps overlapping on a phone: `lead` goes into the flow and the
+     details are positioned against it, so the composition survives instead of
+     flattening into three stacked pictures. */
+  .plates { position: relative; inset: auto; align-self: stretch; }
+  .plate[data-p="lead"], .mv--flip .plate[data-p="lead"] {
+    position: relative; right: auto; left: auto; top: auto; translate: 0;
+    width: min(68vw, 300px); margin-left: auto;
   }
-  .mv--flip .mv__plate { align-self: flex-start; }
-  .mv__plate--portrait { width: min(52vw, 230px); }
+  .mv--flip .plate[data-p="lead"] { margin-left: 0; margin-right: auto; }
+  .plate[data-p="sub"], .mv--flip .plate[data-p="sub"] {
+    left: 0; right: auto; top: 10%; width: 34vw;
+  }
+  .mv--flip .plate[data-p="sub"] { left: auto; right: 0; }
+  .plate[data-p="chip"], .mv--flip .plate[data-p="chip"] {
+    left: 14%; right: auto; bottom: -7%; width: 24vw;
+  }
+  .mv--flip .plate[data-p="chip"] { left: auto; right: 14%; }
+  .plate--portrait { width: min(50vw, 220px); }
   .mv__body, .mv--flip .mv__body { max-width: none; justify-self: stretch; }
   .mv[data-label]:not([data-label=""])::before { left: 4px; letter-spacing: 0.36em; }
   .prof { grid-template-columns: 1fr; gap: var(--space-8); }
@@ -327,7 +350,8 @@ img { display: block; max-width: 100%; }
 
 @media (prefers-reduced-motion: reduce) {
   .rv { opacity: 1; transform: none; transition: none; }
-  .air__l, .mv__bg img, .mv__plate { transform: none !important; }
+  #air { display: none; }
+  .mv__bg img, .plate { transform: none !important; }
   .scroll-cue__rule::after { animation: none; }
   .hero__line.is-in span { animation: none; }
 }
