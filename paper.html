@@ -13,7 +13,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- Loaded without blocking the first paint. Zen Old Mincho alone arrives as
+     56 unicode-range subsets, and waiting on that stylesheet held the page
+     blank for 652ms. The system mincho in tokens.css stands in until the real
+     faces land, and `display=swap` does the handover. -->
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap">
+<noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap">
+</noscript>
 
 <link rel="preload" as="image" href="/paper/hero_forme.webp">
 <link rel="stylesheet" href="/src/styles/tokens.css">
@@ -22,15 +30,9 @@
 <body>
 <a href="#s-intro" class="skip">本文へスキップ</a>
 
-<!-- Two backlit dust plates, drifting at different speeds over everything.
-     Izanami runs its clouds through a shader; here they are just screened DOM
-     layers, which costs nothing on a phone and reads the same at these
-     opacities. -->
-<div class="air" aria-hidden="true">
-  <div class="air__l" data-air="1" style="background-image:url(/paper/dust01.webp)"></div>
-  <div class="air__l" data-air="2" style="background-image:url(/paper/dust02.webp)"></div>
-</div>
-<div class="grain" aria-hidden="true"></div>
+<!-- Dust, grain and ripples, in one additive GL pass. See src/paper/air.js for
+     why this is not three blended DOM layers any more. -->
+<canvas id="air" aria-hidden="true"></canvas>
 
 <header class="chrome chrome--tl">
   <a class="mark" href="#top">
@@ -79,9 +81,17 @@
       <p class="lead rv">机上にて、組織や社会の現実が<em>言葉と物語</em>によってどう編まれるかを研究する。</p>
       <p class="lead rv">実践にて、複数の事業や活動を通じて、別のレンズを社会に差し込む。</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.14">
-      <img src="/paper/plate_intro_twobooks.webp" alt="開いた本の上に、もう一冊が伏せて重なっている" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.14">
+          <img src="/paper/plate_intro_twobooks.webp" alt="開いた本の上に、もう一冊が伏せて重なっている" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.3">
+          <img src="/paper/detail_thread.webp" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="chip" data-depth="0.44">
+          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <!-- 03 ─ WORKS ────────────────────────────────────── -->
@@ -102,9 +112,14 @@
       <p class="tags rv">Organization Design / Narrative / Dialogue</p>
       <a class="link rv" href="https://bwh-research.com" target="_blank" rel="noopener">bwh-research.com <span aria-hidden="true">↗</span></a>
     </div>
-    <figure class="mv__plate rv" data-depth="0.18">
-      <img src="/paper/plate_bwh_minutes.webp" alt="付箋と書き込みで埋まった議事録" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.18">
+          <img src="/paper/plate_bwh_minutes.webp" alt="付箋と書き込みで埋まった議事録" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <section class="mv mv--item mv--flip" data-label="Works">
@@ -115,9 +130,14 @@
       <p class="tags rv">Board Game / Learning / Experience</p>
       <a class="link rv" href="https://kyodai-boardgame.com" target="_blank" rel="noopener">kyodai-boardgame.com <span aria-hidden="true">↗</span></a>
     </div>
-    <figure class="mv__plate rv" data-depth="0.18">
-      <img src="/paper/plate_kyobo_diecut.webp" alt="型抜きシートと、抜かれた無地の駒" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.18">
+          <img src="/paper/plate_kyobo_diecut.webp" alt="型抜きシートと、抜かれた無地の駒" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_stackedge.webp" alt="紙の小口の層" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <section class="mv mv--item" data-label="Works">
@@ -128,9 +148,14 @@
       <p class="tags rv">Inquiry / Children / Platform</p>
       <a class="link rv" href="https://www.e-donuts.com/" target="_blank" rel="noopener">e-donuts.com <span aria-hidden="true">↗</span></a>
     </div>
-    <figure class="mv__plate rv" data-depth="0.18">
-      <img src="/paper/plate_edonuts_grid.webp" alt="方眼の線を無視して走る、子どもの鉛筆の線" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.18">
+          <img src="/paper/plate_edonuts_grid.webp" alt="方眼の線を無視して走る、子どもの鉛筆の線" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_torn.webp" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <section class="mv mv--item mv--flip" data-label="Works">
@@ -141,9 +166,14 @@
       <p class="tags rv">Beauty / Data / Communication</p>
       <p class="link link--pending rv">準備中</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.18">
-      <img src="/paper/plate_tsukaishi_transcript.webp" alt="括弧と接続線が引かれた書き起こし原稿" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.18">
+          <img src="/paper/plate_tsukaishi_transcript.webp" alt="括弧と接続線が引かれた書き起こし原稿" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <!-- 04 ─ BELIEFS ──────────────────────────────────── -->
@@ -161,9 +191,17 @@
       <h3 class="h-jp rv">問題意識</h3>
       <p class="body rv">効率、資本、学歴。支配的な言説は、世界の見え方を均質にする。問題は「どの基準が正しいか」ではない。別の見え方がありえたことすら、忘れられていくことだ。</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.16">
-      <img src="/paper/belief_repetition_v3.webp" alt="同じ頁が壁一面に整列している" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.16">
+          <img src="/paper/belief_repetition_v3.webp" alt="同じ頁が壁一面に整列している" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.3">
+          <img src="/paper/belief_repetition_v1.webp" alt="同じ版面が積み上がる" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="chip" data-depth="0.44">
+          <img src="/paper/detail_stackedge.webp" alt="紙の小口の層" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <section class="mv mv--item mv--flip" data-label="Beliefs">
@@ -172,9 +210,14 @@
       <h3 class="h-jp rv">ミッション</h3>
       <p class="body rv">ローカルの現場には、まだ言語化されていない知がある。一方、あるローカルには届いていない知もある。その双方のあいだに立ち、別の現実の可能性を提示し続ける。</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.16">
-      <img src="/paper/plate_mission_twopapers.webp" alt="和紙と洋紙が縁で交わっている" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.16">
+          <img src="/paper/plate_mission_twopapers.webp" alt="和紙と洋紙が縁で交わっている" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_torn.webp" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <section class="mv mv--item" data-label="Beliefs">
@@ -183,9 +226,14 @@
       <h3 class="h-jp rv">立ち位置</h3>
       <p class="body rv">資本主義の外側から批判するのではなく、その内側で別のレンズを探究し、社会に提案し続けたい。様々な可能性を新たな現実として社会に埋め込んでいきたい。研究者であり、実践者であること。それが私です。</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.16">
-      <img src="/paper/plate_stance_inserted.webp" alt="均一な頁の束の内側に、一枚だけ違う紙が差さっている" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.16">
+          <img src="/paper/plate_stance_inserted.webp" alt="均一な頁の束の内側に、一枚だけ違う紙が差さっている" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.32">
+          <img src="/paper/detail_thread.webp" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <!-- 05 ─ PROFILE ──────────────────────────────────── -->
@@ -225,9 +273,14 @@
       </div>
     </div>
     <!-- The one photograph on this page that is not generated. -->
-    <figure class="mv__plate mv__plate--portrait rv" data-depth="0.12">
-      <img src="/portrait_ginzo.jpg" alt="静木 銀蔵" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate plate--portrait rv" data-p="lead" data-depth="0.12">
+          <img src="/portrait_ginzo.jpg" alt="静木 銀蔵" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.3">
+          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <!-- 06 ─ WRITINGS ─────────────────────────────────── -->
@@ -237,9 +290,17 @@
       <h2 class="h-jp h-jp--big rv">言葉は、世界を映す鏡ではなく、<br>世界を切り取るレンズである。</h2>
       <p class="body rv">公開準備中。インタビュー、登壇、寄稿、掲載情報などを順次追加していきます。</p>
     </div>
-    <figure class="mv__plate rv" data-depth="0.16">
-      <img src="/paper/plate_writings_proof.webp" alt="圧の跡と赤字の残る校正紙" loading="lazy">
-    </figure>
+      <div class="plates" aria-hidden="false">
+        <figure class="plate rv" data-p="lead" data-depth="0.16">
+          <img src="/paper/plate_writings_proof.webp" alt="圧の跡と赤字の残る校正紙" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="sub" data-depth="0.3">
+          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+        </figure>
+        <figure class="plate rv" data-p="chip" data-depth="0.44">
+          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+        </figure>
+      </div>
   </section>
 
   <!-- 07 ─ CONTACT ──────────────────────────────────── -->
