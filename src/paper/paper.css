@@ -366,7 +366,11 @@ body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72
 
 /* ── Reveal ─────────────────────────────────────────────────────────────── */
 
-.rv { opacity: 0; transform: translateY(18px); transition: opacity 900ms var(--ease), transform 900ms var(--ease); }
+/* 900ms plus a stagger of up to 360ms plus the wait for the observer meant an
+   element took 2.3 seconds to finish arriving — measured. Long fades read as
+   atmosphere when you are already sitting still and as lag the moment you are
+   scrolling, which is most of this page. */
+.rv { opacity: 0; transform: translateY(14px); transition: opacity 480ms var(--ease), transform 480ms var(--ease); }
 .rv.is-in { opacity: 1; transform: none; }
 /* Stagger the hero lines by hand — they are the first thing anyone sees. */
 /* Direct children again: as a descendant selector this staggered every split

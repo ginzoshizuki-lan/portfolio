@@ -81,25 +81,35 @@ if (!reduced) charTargets.forEach(splitLatin);
 /* ── Reveal ───────────────────────────────────────────────────────────── */
 
 const revealables = [...document.querySelectorAll('.rv')];
-if (reduced || !('IntersectionObserver' in window)) {
+let revealSections = [];
+if (reduced) {
   revealables.forEach((el) => el.classList.add('is-in'));
 } else {
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      if (!e.isIntersecting) continue;
-      e.target.classList.add('is-in');
-      io.unobserve(e.target);
-    }
-  }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-
   const seen = new Map();
   revealables.forEach((el) => {
     const parent = el.parentElement;
     const n = seen.get(parent) || 0;
     seen.set(parent, n + 1);
-    el.style.transitionDelay = `${Math.min(n, 6) * 90}ms`;
-    io.observe(el);
+    /* Shorter and capped sooner. The stagger is there to give a block a sense
+       of order, not to make the reader wait for the fifth line. */
+    el.style.transitionDelay = `${Math.min(n, 3) * 45}ms`;
   });
+
+  /* Reveals are driven from the scroll loop, not from IntersectionObserver.
+
+     Two things went wrong with the observer. Watching the individual pieces
+     meant watching elements inside `overflow: hidden`, and an ancestor's clip
+     is applied to the intersection rectangle — a plate that parallax had
+     pushed past its section edge never intersected anything and stayed
+     invisible for the entire session. Watching the sections instead fixed
+     that but introduced a worse one: entries are delivered asynchronously and
+     coalesced, so a fast flick skipped most of them outright.
+
+     The loop already knows where every section is, to the pixel, every frame.
+     Asking it one more question cannot miss. */
+  revealSections = [...document.querySelectorAll('.mv')].map((el) => ({
+    el, items: [...el.querySelectorAll('.rv')], done: false, top: 0,
+  }));
 }
 
 /* ── Nav highlight ────────────────────────────────────────────────────── */
@@ -162,6 +172,7 @@ function measure() {
     m.mid = r.top + y + r.height / 2;      // document-space centre of the section
     m.applied = -1e9;
   }
+  for (const s of revealSections) s.top = s.el.getBoundingClientRect().top + y;
 
   chars.length = 0;
   if (reduced) return;
@@ -196,6 +207,23 @@ for (const img of document.images) {
   if (!img.complete) img.addEventListener('load', scheduleMeasure, { once: true, passive: true });
 }
 measure();
+
+/* Warm the rest of the plates once the page itself is up. They stay
+   `loading="lazy"` so they never compete with the first screen, but a lazy
+   image still starts downloading only as it nears the viewport — which, at
+   scrolling speed, means arriving after you do. The whole set is 1.4MB and
+   this runs when the browser is otherwise idle. */
+function warmImages() {
+  for (const img of document.querySelectorAll('img[loading="lazy"]')) {
+    if (img.complete) continue;
+    const pre = new Image();
+    pre.decoding = 'async';
+    pre.src = img.currentSrc || img.src;
+  }
+}
+const idle = window.requestIdleCallback || ((fn) => setTimeout(fn, 400));
+if (document.readyState === 'complete') idle(warmImages);
+else window.addEventListener('load', () => idle(warmImages), { once: true });
 
 /* ── Ripples over the text ────────────────────────────────────────────── */
 
@@ -234,6 +262,15 @@ function frame(now) {
   progNum.textContent = String(Math.round(p * 100)).padStart(2, '0');
   if (reduced) return;
   if (air) air.setScroll(p);
+
+  /* Reveal a section once it is within a fifth of a screen of the fold, so it
+     has finished arriving before you get there. */
+  const trigger = y + vh * 1.22;
+  for (const s of revealSections) {
+    if (s.done || s.top > trigger) continue;
+    s.done = true;
+    for (const el of s.items) el.classList.add('is-in');
+  }
 
   /* Parallax — no layout reads, and nothing written for sections that are not
      on screen. */
