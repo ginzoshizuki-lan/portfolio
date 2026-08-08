@@ -19,7 +19,7 @@ void main() { gl_Position = vec4(p, 0.0, 1.0); }
 
 /* Ripples are passed as a flat array of vec4(x, y, age, strength). Eight is
    plenty: they live under a second and taps do not arrive that fast. */
-const MAX_RIPPLES = 8;
+const MAX_RIPPLES = 5;
 
 const FRAG = `
 precision highp float;
@@ -192,11 +192,11 @@ export function createAir(canvas) {
      clear accumulated frame over frame until the canvas went solid. */
   gl.disable(gl.BLEND);
 
-  const coarse = matchMedia('(pointer: coarse)').matches;
-  /* Fill rate is the whole cost here, so resolution is the only dial worth
-     turning. Full DPR on a phone would triple the work for an effect nobody
-     can see at that density. */
-  const dpr = Math.min(window.devicePixelRatio || 1, coarse ? 1 : 1.5);
+  /* Fixed at 1 device pixel. This pass is pure fill rate over the whole
+     viewport, and the dust is soft, out-of-focus bokeh — there is nothing in
+     it that a second device pixel resolves. At 1.5 it was shading 2.9
+     megapixels a frame to draw something deliberately blurry. */
+  const dpr = 1;
 
   function resize() {
     const w = Math.round(window.innerWidth * dpr);
