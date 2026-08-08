@@ -1,4 +1,8 @@
 import { defineConfig } from 'vite';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const here = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
   base: './',
@@ -9,5 +13,13 @@ export default defineConfig({
   build: {
     target: 'es2020',
     assetsInlineLimit: 0,
+    /* / is the shipped flythrough; /paper.html is this branch's variant.
+       Both build so the two can be compared from one deploy. */
+    rollupOptions: {
+      input: {
+        main: resolve(here, 'index.html'),
+        paper: resolve(here, 'paper.html'),
+      },
+    },
   },
 });
