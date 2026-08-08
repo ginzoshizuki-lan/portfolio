@@ -22,9 +22,14 @@
 
   --pad: clamp(20px, 4vw, 56px);
   /* Izanami never sets text against the edge of the screen — the copy starts
-     roughly a quarter of the way in and the only thing living at the margin
-     is the vertical label. This is that indent. */
-  --inset: clamp(24px, 13vw, 210px);
+     some way in and the only thing living at the margin is the vertical
+     label. Pulled back from 13vw: at that indent the column and the plates
+     were both hugging their own edge and the middle of a wide screen was a
+     large empty rectangle. */
+  --inset: clamp(24px, 9.5vw, 158px);
+  /* Shared so the detail plates can be placed against the lead rather than
+     against the viewport, which is what closes that gap. */
+  --lead-w: min(38vw, 540px);
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -118,7 +123,6 @@ img { display: block; max-width: 100%; }
   width: 100%; height: 100%; object-fit: cover;
   /* Scaled past the frame so the parallax shift never reveals an edge. */
   transform: scale(1.12);
-  will-change: transform;
 }
 /* Every background sits under a scrim: the plates were shot bright enough to
    read on their own, and full strength they drown the type. */
@@ -144,6 +148,10 @@ img { display: block; max-width: 100%; }
 .mv__body { position: relative; z-index: 2; max-width: 46ch; }
 .mv--flip .mv__body { justify-self: end; text-align: left; }
 
+/* One letter of split display type. inline-block so it can be transformed at
+   all; the ripple writes translate3d straight onto these. */
+.ch { display: inline-block; white-space: pre; }
+
 /* ── Plates ─────────────────────────────────────────────────────────────── */
 
 /* A section can carry up to three plates at different sizes and depths, the
@@ -157,9 +165,13 @@ img { display: block; max-width: 100%; }
   position: absolute; margin: 0; overflow: hidden;
   /* Centring goes on `translate`, not `transform`: the parallax loop owns
      `transform`, and writing to it would otherwise drop the -50% and shove
-     every plate half its own height down the page. */
-  will-change: transform;
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+     every plate half its own height down the page.
+
+     No `will-change` here. Two dozen plates plus five backgrounds meant two
+     dozen permanent compositor layers, and an 80px-blur shadow on each one on
+     top of that — for a shadow that is nearly invisible against a near-black
+     ground. translate3d promotes what it needs, when it needs it. */
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
 }
 .plate img { width: 100%; height: auto; }
 .plate::after {
@@ -167,13 +179,15 @@ img { display: block; max-width: 100%; }
   background: linear-gradient(to top, rgba(10, 8, 1, 0.5), transparent 62%);
 }
 
-.plate[data-p="lead"] { right: calc(var(--pad) * -0.6); top: 50%; translate: 0 -50%; width: min(31vw, 400px); }
-.plate[data-p="sub"]  { right: calc(var(--pad) * 6.5); top: 12%;  width: min(15vw, 186px); }
-.plate[data-p="chip"] { right: calc(var(--pad) * 1.6); bottom: 9%; width: min(10.5vw, 132px); }
+/* The details are anchored off the lead's own width, so the group reaches back
+   toward the text column instead of all three clinging to the right edge. */
+.plate[data-p="lead"] { right: -2vw; top: 50%; translate: 0 -50%; width: var(--lead-w); }
+.plate[data-p="sub"]  { right: calc(var(--lead-w) - 5vw); top: 14%; width: min(15vw, 196px); }
+.plate[data-p="chip"] { right: calc(var(--lead-w) + 2vw); bottom: 8%; width: min(11vw, 146px); }
 
-.mv--flip .plate[data-p="lead"] { right: auto; left: calc(var(--pad) * -0.6); }
-.mv--flip .plate[data-p="sub"]  { right: auto; left: calc(var(--pad) * 6.5); }
-.mv--flip .plate[data-p="chip"] { right: auto; left: calc(var(--pad) * 1.6); }
+.mv--flip .plate[data-p="lead"] { right: auto; left: -2vw; }
+.mv--flip .plate[data-p="sub"]  { right: auto; left: calc(var(--lead-w) - 5vw); }
+.mv--flip .plate[data-p="chip"] { right: auto; left: calc(var(--lead-w) + 2vw); }
 
 .plate--portrait { width: min(24vw, 290px); }
 
@@ -213,9 +227,9 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.02em;
 }
 
-.lead { margin: 0 0 var(--space-5); max-width: 34ch; font: 400 clamp(15px, 1.3vw, 18px)/2.15 var(--jp); color: var(--ink); }
+.lead { margin: 0 0 var(--space-5); max-width: 38ch; font: 400 clamp(15px, 1.3vw, 18px)/2.15 var(--jp); color: var(--ink); }
 .lead em { font-style: normal; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
-.body { margin: 0 0 var(--space-6); max-width: 36ch; font: 400 clamp(13px, 1.02vw, 15px)/2.25 var(--jp); color: var(--dim); }
+.body { margin: 0 0 var(--space-6); max-width: 40ch; font: 400 clamp(13px, 1.02vw, 15px)/2.25 var(--jp); color: var(--dim); }
 .tags { margin: 0 0 var(--space-6); font: 400 10px/2 var(--mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--faint); }
 
 .link {
