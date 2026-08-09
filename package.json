@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4178",
-    "build:single": "vite build && node tools/bundle-single.mjs"
+    "build:single": "vite build --config vite.single.config.js && node tools/bundle-single.mjs"
   },
   "keywords": [],
   "author": "",

@@ -13,16 +13,16 @@ export default defineConfig({
   build: {
     target: 'es2020',
     assetsInlineLimit: 0,
-    /* Three takes on the same content, built together so they can be compared
-       from one server instead of by switching branches:
-         /             architectural flythrough (what is live today)
-         /gallery.html Lens Space — the fluid gallery
-         /paper.html   Paper Space — paper, type and a long quiet scroll */
+    /* Three takes on the same content. Paper Space is the site now; the other
+       two stay published so they can still be looked at and linked to:
+         /                 Paper Space — paper, type and a long quiet scroll
+         /flythrough.html  the architectural flythrough (the previous site)
+         /gallery.html     Lens Space — the fluid gallery */
     rollupOptions: {
       input: {
         main: resolve(here, 'index.html'),
+        flythrough: resolve(here, 'flythrough.html'),
         gallery: resolve(here, 'gallery.html'),
-        paper: resolve(here, 'paper.html'),
       },
     },
   },

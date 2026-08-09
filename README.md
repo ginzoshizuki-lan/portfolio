@@ -1,6 +1,21 @@
-# portfolio-3d — 静木銀蔵 ポートフォリオ（Three.js 建築フライスルー版）
+# portfolio — 静木銀蔵 ポートフォリオ
 
-現行サイト（https://portfolio-ginzoshizuki.vercel.app/）の**差し替え候補**。
+本番＝ https://portfolio-ginzoshizuki.vercel.app/ 。
+**トップは Paper Space（紙と活字）**。過去の版も同じデプロイに同居している。
+
+| URL | 版 | ブランチ / タグ |
+|---|---|---|
+| `/` | **Paper Space**（現本番） | `main` |
+| `/flythrough.html` | 建築フライスルー（前の本番） | `flythrough` / `v3d-final` |
+| `/gallery.html` | Lens Space | `experiment-space` |
+
+旧2D版は `2d-legacy` / `v2d-final`。
+
+---
+
+## 建築フライスルー版（`/flythrough.html`）
+
+以下はフライスルーの解説。**2026-08-09 まで本番だったもの**。
 既存サイトのコピー・配色トークンをそのまま引き継ぎ、スクロールで巨大な
 コンクリート建築の中を進んでいく体験に置き換えたもの。
 
@@ -20,10 +35,12 @@ npm run dev
 |---|---|
 | `npm run dev` | Vite 開発サーバー（http://127.0.0.1:5178） |
 | `npm run build` | `dist/` に本番ビルド。Vercel はこれを見る |
-| `npm run build:single` | `dist-single/index.html` — 1ファイル完結版。**ダブルクリックで開ける**（サーバー不要） |
+| `npm run build:single` | `dist-single/index.html` — **フライスルーの**1ファイル完結版。**ダブルクリックで開ける**（サーバー不要） |
 
 `build:single` は CSS と JS をインライン化し、ポートレートを data URI に
 埋め込む。共有・確認用。本番配信は `dist/` を使うこと。
+**専用の `vite.single.config.js` で単体ビルドしてから畳む**——本ビルドは
+エントリが3つあり three.js が共有チャンクに分かれるので、1本に畳めない。
 
 ---
 
@@ -140,7 +157,7 @@ DOM にあるので、テキスト・SEO・スクリーンリーダーはこの�
 
 ---
 
-# 3つの版と、その見かた
+# 3つの版と、その見かた（ローカル）
 
 同じ中身を3通りに作ってある。**このブランチ（`compare`）は3つとも入っているので、
 サーバーを1本立てれば切り替えずに見比べられる。**
@@ -152,9 +169,9 @@ npm run dev
 
 | URL | 版 | 何をしているか |
 |---|---|---|
-| `http://127.0.0.1:5178/` | **建築フライスルー** | 現在の本番。スクロールでコンクリート建築を進む |
+| `http://127.0.0.1:5178/` | **Paper Space** | 現本番。紙と活字の長いスクロール |
 | `http://127.0.0.1:5178/gallery.html` | **Lens Space** | 1画面。板を掴んで回し、隊形を組み替える |
-| `http://127.0.0.1:5178/paper.html` | **Paper Space** | 長い縦スクロール。紙と活字の写真で読ませる |
+| `http://127.0.0.1:5178/flythrough.html` | **建築フライスルー** | 前の本番。スクロールでコンクリート建築を進む |
 
 `npm run dev` は LAN に出るので、**同じ Wi-Fi のスマホから実機で見られる**
 （起動時に出る `Network:` の URL を開く）。3版とも縦画面での見え方が肝なので、

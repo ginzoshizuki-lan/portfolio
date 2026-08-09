@@ -10,20 +10,30 @@
    Run via `npm run build:single`.
    ========================================================================== */
 
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const dist = join(root, 'dist');
+/* Not `dist/`: that build has three entries and splits what they share, so the
+   flythrough page there references four scripts. `vite.single.config.js`
+   builds this page on its own, which leaves exactly one of each. */
+const dist = join(root, 'dist-single-build');
 const out = join(root, 'dist-single');
 
-const assets = await readdir(join(dist, 'assets'));
-const jsFile = assets.find((f) => f.endsWith('.js'));
-const cssFile = assets.find((f) => f.endsWith('.css'));
-if (!jsFile || !cssFile) throw new Error('run `npm run build` first');
+/* This packs the flythrough, which is the page it was written for — it inlines
+   that portrait and expects one script and one stylesheet. Since Paper Space
+   took over index.html, the entry is named explicitly. */
+const ENTRY = 'flythrough.html';
 
-let html = await readFile(join(dist, 'index.html'), 'utf8');
+let html = await readFile(join(dist, ENTRY), 'utf8');
+
+/* Read the asset names out of the page rather than picking the first file in
+   assets/. With three entries built side by side, "the first .js in the
+   directory" is whichever one hashed lowest — nothing to do with this page. */
+const jsFile = (html.match(/assets\/([\w.-]+\.js)/) || [])[1];
+const cssFile = (html.match(/assets\/([\w.-]+\.css)/) || [])[1];
+if (!jsFile || !cssFile) throw new Error(`no bundled assets referenced by ${ENTRY} — run \`npm run build\` first`);
 const js = await readFile(join(dist, 'assets', jsFile), 'utf8');
 const css = await readFile(join(dist, 'assets', cssFile), 'utf8');
 
