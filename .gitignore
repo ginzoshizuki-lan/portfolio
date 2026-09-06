@@ -12,5 +12,12 @@ Thumbs.db
 
 # Generated image masters — the committed webp derivatives are what ship.
 public/paper/*.png
+# ...but the halftone cell maps under ht/ ARE the site's images now and must
+# ship. The pattern above does not reach into a subdirectory; this is here so
+# that stays true if anyone widens it.
+!public/paper/ht/*.png
+
+# Python bytecode from tools/
+__pycache__/
 
 dist-single-build/

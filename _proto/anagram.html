@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>proto — stereo anagram particles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{ --field:#07080a; --ink:#cfd4da; }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:var(--field);overflow:hidden}
+  canvas{display:block;width:100vw;height:100vh}
+  #hud{position:fixed;left:14px;top:12px;color:var(--ink);opacity:.62;
+       font:11px/1.65 ui-monospace,Consolas,monospace;white-space:pre;pointer-events:none}
+  #ang{position:fixed;right:14px;top:12px;color:var(--ink);opacity:.62;
+       font:11px/1.65 ui-monospace,Consolas,monospace;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">BOOT</div>
+<div id="ang"></div>
+<script>
+/* ------------------------------------------------------------------
+   立体アナグラム粒子 — プロト
+   面A（0°）= "Another / reading"   面B（90°）= "was always / possible"
+   同じ走査線で両面をサンプルし、点を (xA, y, xB) に置く。
+   直交2方向の正投影なので、回転で厳密に別の語になる。
+   ?angle=0|45|90 で静止（撮影用）。無指定なら自動回転＋マウス反発。
+-------------------------------------------------------------------*/
+var Q = new URLSearchParams(location.search);
+var FIXED = Q.has('angle') ? parseFloat(Q.get('angle')) : null;
+var LINES_A = ['Another', 'reading'];
+var LINES_B = ['was always', 'possible'];
+
+var SW = 1400, SH = 620;      // オフスクリーンのサンプリング解像度
+var ROW_STEP = 2, COL_STEP = 2;
+
+var hud = document.getElementById('hud');
+var angEl = document.getElementById('ang');
+var log = [];
+
+function sampleFace(lines, font){
+  var cv = document.createElement('canvas');
+  cv.width = SW; cv.height = SH;
+  var g = cv.getContext('2d');
+  g.fillStyle = '#000'; g.fillRect(0,0,SW,SH);
+  g.fillStyle = '#fff';
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  var size = 205, lh = 218;
+  g.font = '500 ' + size + 'px ' + font;
+  var maxw = 0, i;
+  for(i=0;i<lines.length;i++) maxw = Math.max(maxw, g.measureText(lines[i]).width);
+  if(maxw > SW*0.90){
+    size = Math.floor(size * (SW*0.90) / maxw);
+    lh = Math.floor(size * 1.06);
+    g.font = '500 ' + size + 'px ' + font;
+  }
+  var top = SH/2 - (lines.length-1)*lh/2;
+  for(i=0;i<lines.length;i++) g.fillText(lines[i], SW/2, top + i*lh);
+
+  var d = g.getImageData(0,0,SW,SH).data;
+  var rows = [];
+  for(var y=0; y<SH; y+=ROW_STEP){
+    var xs = [];
+    for(var x=0; x<SW; x+=COL_STEP){
+      if(d[(y*SW + x)*4] > 128) xs.push(x);
+    }
+    rows.push(xs);
+  }
+  return { rows: rows, size: size };
+}
+
+function resample(xs, n){
+  var out = new Array(n);
+  if(xs.length === 1){ for(var k=0;k<n;k++) out[k] = xs[0]; return out; }
+  for(var i=0;i<n;i++){
+    var t = i * (xs.length - 1) / (n - 1);
+    out[i] = xs[Math.round(t)];
+  }
+  return out;
+}
+
+function buildCloud(font){
+  var A = sampleFace(LINES_A, font);
+  var B = sampleFace(LINES_B, font);
+  var pos = [], rnd = [];
+  var rowsUsed = 0, rowsSkipped = 0;
+  var nRows = Math.min(A.rows.length, B.rows.length);
+  for(var r=0; r<nRows; r++){
+    var a = A.rows[r], b = B.rows[r];
+    if(a.length === 0 || b.length === 0){ if(a.length||b.length) rowsSkipped++; continue; }
+    rowsUsed++;
+    var n = Math.max(a.length, b.length);
+    var ra = resample(a, n), rb = resample(b, n);
+    var py = r * ROW_STEP;
+    var ny = -(py - SH/2) / (SW/2);
+    for(var i=0;i<n;i++){
+      pos.push( (ra[i] - SW/2)/(SW/2), ny, (rb[i] - SW/2)/(SW/2) );
+      rnd.push( Math.random() );
+    }
+  }
+  return { pos:new Float32Array(pos), rnd:new Float32Array(rnd),
+           count: rnd.length, rowsUsed:rowsUsed, rowsSkipped:rowsSkipped,
+           sizeA:A.size, sizeB:B.size };
+}
+
+/* ---------------- WebGL ---------------- */
+var VS = [
+'attribute vec3 aPos;',
+'attribute float aRnd;',
+'uniform float uAngle, uAspect, uScale, uPS, uForce, uDPR;',
+'uniform vec2 uMouse;',
+'varying float vB;',
+'void main(){',
+'  float c = cos(uAngle), s = sin(uAngle);',
+'  float x =  aPos.x * c + aPos.z * s;',
+'  float z = -aPos.x * s + aPos.z * c;',
+'  vec2 p = vec2(x, aPos.y) * uScale;',
+'  p.x /= uAspect;',
+'  vec2 d = p - uMouse;',
+'  float dist = length(d);',
+'  float R = 0.30;',
+'  if(dist < R && uForce > 0.001){',
+'    float k = (R - dist) / R;',
+'    p += normalize(d + vec2(0.0001)) * k * k * 0.26 * uForce;',
+'  }',
+'  gl_Position = vec4(p, 0.0, 1.0);',
+'  float shimmer = 0.58 + 0.42 * sin(uAngle * 2.0 + aRnd * 6.2831);',
+'  float depth   = 0.90 + 0.10 * z;',
+'  vB = clamp(shimmer * depth, 0.10, 1.0);',
+'  gl_PointSize = uPS * uDPR * (0.85 + 0.30 * aRnd);',
+'}'].join('\n');
+
+var FS = [
+'precision mediump float;',
+'varying float vB;',
+'void main(){',
+'  vec2 q = gl_PointCoord - 0.5;',
+'  float a = smoothstep(0.5, 0.16, length(q));',
+'  if(a < 0.01) discard;',
+'  vec3 silver = mix(vec3(0.44,0.48,0.55), vec3(0.94,0.96,1.0), vB);',
+'  gl_FragColor = vec4(silver, a * (0.30 + 0.70 * vB));',
+'}'].join('\n');
+
+function sh(gl, t, src){
+  var s = gl.createShader(t); gl.shaderSource(s, src); gl.compileShader(s);
+  if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
+  return s;
+}
+
+function start(font, cloud){
+  var cv = document.getElementById('c');
+  var gl = cv.getContext('webgl', {alpha:false, antialias:false, premultipliedAlpha:false,
+                                   preserveDrawingBuffer:true});
+  if(!gl){ hud.textContent = 'NO WEBGL'; return; }
+
+  var pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl, gl.VERTEX_SHADER, VS));
+  gl.attachShader(pr, sh(gl, gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(pr);
+  if(!gl.getProgramParameter(pr, gl.LINK_STATUS)){ hud.textContent = 'LINK FAIL: ' + gl.getProgramInfoLog(pr); return; }
+  gl.useProgram(pr);
+
+  var bp = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, bp);
+  gl.bufferData(gl.ARRAY_BUFFER, cloud.pos, gl.STATIC_DRAW);
+  var aPos = gl.getAttribLocation(pr, 'aPos');
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 3, gl.FLOAT, false, 0, 0);
+
+  var br = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, br);
+  gl.bufferData(gl.ARRAY_BUFFER, cloud.rnd, gl.STATIC_DRAW);
+  var aRnd = gl.getAttribLocation(pr, 'aRnd');
+  gl.enableVertexAttribArray(aRnd); gl.vertexAttribPointer(aRnd, 1, gl.FLOAT, false, 0, 0);
+
+  var U = {};
+  ['uAngle','uAspect','uScale','uPS','uForce','uDPR','uMouse'].forEach(function(n){
+    U[n] = gl.getUniformLocation(pr, n);
+  });
+
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  function resize(){
+    cv.width  = Math.floor(innerWidth  * dpr);
+    cv.height = Math.floor(innerHeight * dpr);
+    gl.viewport(0, 0, cv.width, cv.height);
+  }
+  resize(); addEventListener('resize', resize);
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+  gl.clearColor(0.027, 0.031, 0.039, 1);
+
+  var mouse = [9,9], force = 0;
+  addEventListener('pointermove', function(e){
+    mouse = [ (e.clientX/innerWidth)*2-1, -((e.clientY/innerHeight)*2-1) ];
+    force = 1;
+  });
+  addEventListener('pointerleave', function(){ force = 0; });
+
+  var t0 = performance.now();
+  function draw(now){
+    var ang = FIXED !== null ? FIXED * Math.PI/180 : ((now - t0) / 1000) * 0.22;
+    var asp = cv.width / cv.height;
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.uniform1f(U.uAngle, ang);
+    gl.uniform1f(U.uAspect, asp);
+    gl.uniform1f(U.uScale, 0.86);
+    gl.uniform1f(U.uPS, 1.9);
+    gl.uniform1f(U.uDPR, dpr);
+    gl.uniform1f(U.uForce, force);
+    gl.uniform2f(U.uMouse, mouse[0], mouse[1]);
+    gl.drawArrays(gl.POINTS, 0, cloud.count);
+    force *= 0.94;
+    angEl.textContent = FIXED !== null
+      ? FIXED.toFixed(0) + 'deg (fixed)'
+      : (ang*180/Math.PI % 360).toFixed(1) + 'deg';
+    requestAnimationFrame(draw);   // 固定角でも回し続ける（撮影時に空バッファを掴まないため）
+  }
+  requestAnimationFrame(draw);
+  draw(0);
+
+  hud.textContent = log.concat([
+    'font    : ' + font,
+    'points  : ' + cloud.count.toLocaleString(),
+    'rows    : used ' + cloud.rowsUsed + ' / skipped ' + cloud.rowsSkipped,
+    'px size : A ' + cloud.sizeA + ' / B ' + cloud.sizeB,
+    'canvas  : ' + cv.width + 'x' + cv.height + ' dpr' + dpr
+  ]).join('\n');
+}
+
+function boot(){
+  var probe = document.createElement('canvas').getContext('2d');
+  probe.font = '100px "EB Garamond"';
+  var wG = probe.measureText('Another').width;
+  probe.font = '100px serif';
+  var wS = probe.measureText('Another').width;
+  var ok = Math.abs(wG - wS) > 0.5;
+  var font = ok ? '"EB Garamond", Georgia, serif' : 'Georgia, serif';
+  log.push('webfont : ' + (ok ? 'EB Garamond OK' : 'FALLBACK (Georgia)'));
+  var cloud = buildCloud(font);
+  start(font, cloud);
+}
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.load('205px "EB Garamond"').then(function(){
+    return document.fonts.ready;
+  }).then(boot).catch(boot);
+} else { boot(); }
+</script>
+</body>
+</html>

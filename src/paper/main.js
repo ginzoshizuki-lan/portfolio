@@ -144,8 +144,39 @@ if (!reduced && airCanvas) {
   airCanvas.classList.add('is-dead');
 }
 
+/* ── Halftone ──────────────────────────────────────────────
+   The photographs ship as cell maps and are drawn as dots here, so that the
+   pictures are made of the same stuff as the headline above them. If this
+   never runs, the maps themselves are what the page shows: small, soft, and
+   in the right colour. */
+
+let halftone = null;
+import('./halftone.js')
+  .then(({ paintHalftones }) => { halftone = paintHalftones(); })
+  .catch(() => {});
+
+/* ── Glyph field ──────────────────────────────────────────────────────────
+   The hero headline as a point cloud. `html.gf` is only set once the cloud
+   is confirmed drawing, because that class is what hides the real <h1>. */
+
+const glyphCanvas = document.getElementById('glyph');
+let glyph = null;
+if (!reduced && glyphCanvas) {
+  const anchor = document.querySelector('.hero__line');
+  if (anchor) {
+    import('./glyphfield.js')
+      .then(({ createGlyphField }) => {
+        glyph = createGlyphField(glyphCanvas, anchor);
+        if (glyph && glyph.count > 0) document.documentElement.classList.add('gf');
+        else glyphCanvas.style.display = 'none';
+      })
+      .catch(() => { glyphCanvas.style.display = 'none'; });
+  }
+}
+
 /* ── Measured once, not every frame ───────────────────────────────────── */
 
+const root = document.documentElement;
 const progFill = document.getElementById('prog-fill');
 const progNum = document.getElementById('prog');
 
@@ -260,8 +291,15 @@ function frame(now) {
   const p = Math.min(1, Math.max(0, y / docMax));
   progFill.style.width = `${p * 100}%`;
   progNum.textContent = String(Math.round(p * 100)).padStart(2, '0');
+  /* One custom property, read by the two color-mix() declarations in the
+     stylesheet. Cheaper than animating the colours themselves, and it means
+     the ramp is described in CSS where the rest of the palette lives. */
+  root.style.setProperty('--t', p.toFixed(3));
   if (reduced) return;
   if (air) air.setScroll(p);
+  /* The hero is one screen tall. Past it, the cloud is drawing nothing anyone
+     can see, so stop paying for it. */
+  if (glyph) glyph.setLive(y < vh * 1.2);
 
   /* Reveal a section once it is within a fifth of a screen of the fold, so it
      has finished arriving before you get there. */
@@ -365,7 +403,8 @@ if (location.hash === '#perf') {
     n++;
     if (t - t0 >= 500) {
       hud.textContent = `${Math.round((n * 1000) / (t - t0))} FPS · worst ${worst.toFixed(0)}ms`
-        + ` · air ${air ? 'on' : 'off'} · ch ${chars.length}`;
+        + ` · air ${air ? 'on' : 'off'} · glyph ${glyph ? glyph.count : 'off'}`
+        + ` · ht ${halftone ? halftone.count : 'off'} · ch ${chars.length}`;
       n = 0; t0 = t; worst = 0;
     }
   })();

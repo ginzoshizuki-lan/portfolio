@@ -10,8 +10,20 @@
    ========================================================================== */
 
 :root {
-  --field: #0a0801;         /* warm near-black, measured off Izanami */
-  --ink: #d9d7d4;           /* warm off-white, never pure */
+  /* The page cools and warms as you go down it. At the top the headline is a
+     cloud of silver particles and nothing has settled; at the bottom
+     everything is ink and paper. `--t` is how far down the document you are,
+     written once per frame from the scroll loop, and the two ends below are
+     mixed by it. Both ends are declared here so the page is correct before
+     any script runs. */
+  --t: 0;
+  --field-cold: #070a0d;    /* cold near-black, the field the particles sit in */
+  --field-warm: #0a0801;    /* warm near-black, measured off Izanami */
+  --ink-cold: #cfd5dd;      /* silver */
+  --ink-warm: #d9d7d4;      /* warm off-white, never pure */
+
+  --field: color-mix(in oklab, var(--field-cold), var(--field-warm) calc(var(--t) * 100%));
+  --ink:   color-mix(in oklab, var(--ink-cold),   var(--ink-warm)   calc(var(--t) * 100%));
   --dim: rgba(217, 215, 212, 0.58);
   --faint: rgba(217, 215, 212, 0.34);
   --rule: rgba(217, 215, 212, 0.18);
@@ -30,6 +42,17 @@
   /* Shared so the detail plates can be placed against the lead rather than
      against the viewport, which is what closes that gap. */
   --lead-w: min(38vw, 540px);
+  /* The scrims are the field at partial strength, not a hard-coded warm
+     black. Left as rgba(10, 8, 1, …) they stayed warm while the top of the
+     page cooled, and the difference showed as a brown cast over the silver. */
+  --scrim-strong: color-mix(in oklab, var(--field) 72%, transparent);
+  /* Heavier than the 45%/40% the photographs needed. A halftone has far more
+     local contrast than the picture it came from — every cell swings between
+     the field and full ink — and at the old strength the profile lists and the
+     eyebrow labels were being eaten by the dots behind them. */
+  --scrim:        color-mix(in oklab, var(--field) 64%, transparent);
+  --scrim-soft:   color-mix(in oklab, var(--field) 56%, transparent);
+
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -81,8 +104,8 @@ body::before, body::after {
   content: ""; position: fixed; left: 0; right: 0; z-index: 10;
   height: 20vh; pointer-events: none;
 }
-body::before { top: 0; background: linear-gradient(to bottom, rgba(10, 8, 1, 0.72), transparent); }
-body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72), transparent); }
+body::before { top: 0; background: linear-gradient(to bottom, var(--scrim-strong), transparent); }
+body::after { bottom: 0; background: linear-gradient(to top, var(--scrim-strong), transparent); }
 
 .chrome {
   position: fixed; z-index: 20;
@@ -139,8 +162,8 @@ body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72
 .mv__bg::after {
   content: ""; position: absolute; inset: 0;
   background:
-    linear-gradient(to bottom, var(--field) 0%, rgba(10, 8, 1, 0.45) 22%, rgba(10, 8, 1, 0.45) 78%, var(--field) 100%),
-    rgba(10, 8, 1, 0.4);
+    linear-gradient(to bottom, var(--field) 0%, var(--scrim) 22%, var(--scrim) 78%, var(--field) 100%),
+    var(--scrim-soft);
 }
 
 /* The vertical section label, repeated down the left edge. */
@@ -293,16 +316,27 @@ body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72
 /* ── Hero ───────────────────────────────────────────────────────────────── */
 
 .mv--hero { align-content: center; }
+
+/* The point cloud occupies the whole hero so the type has room to spread as
+   it turns; it is positioned onto the <h1>'s box from JS, not from here. */
+#glyph {
+  position: absolute; inset: 0; z-index: 1;
+  width: 100%; height: 100%;
+  pointer-events: none;
+}
+/* Only hidden once the cloud is actually drawing. Losing GL, or JS, has to
+   leave a readable headline behind rather than an empty screen.
+
+   Hidden with opacity, not by clipping it to a pixel: the cloud is positioned
+   onto this element's box every resize, and a clipped headline reports a 1×1
+   rect. It also has to stay in the accessibility tree — the particles are
+   `aria-hidden`, so this is the only place the sentence exists as text. */
+html.gf .hero__line { opacity: 0 !important; }
 /* The measure belongs to the display lines, not to the block: capping the
    wrapper clamped the Japanese line too and split もう少し across two rows. */
 .mv--hero .mv__wrap { position: relative; z-index: 2; }
-/* The forme is the one background worth actually seeing — it is the picture of
-   the sentence on top of it. Lift the scrim off it. */
-.mv--hero .mv__bg::after {
-  background:
-    linear-gradient(to bottom, rgba(10, 8, 1, 0.82) 0%, rgba(10, 8, 1, 0.3) 40%, rgba(10, 8, 1, 0.35) 70%, var(--field) 100%),
-    linear-gradient(to right, rgba(10, 8, 1, 0.7) 0%, rgba(10, 8, 1, 0.15) 55%);
-}
+/* The forme photograph that used to sit here is gone: the headline is now the
+   picture. Nothing to lift a scrim off. */
 .hero__line {
   margin: 0 0 var(--space-8);
   max-width: 22ch;
@@ -436,6 +470,7 @@ body::after { bottom: 0; background: linear-gradient(to top, rgba(10, 8, 1, 0.72
 @media (prefers-reduced-motion: reduce) {
   .rv { opacity: 1; transform: none; transition: none; }
   #air { display: none; }
+  #glyph { display: none; }
   .mv__bg img, .plate { transform: none !important; }
   .scroll-cue__rule::after { animation: none; }
   .hero__line.is-in > span { animation: none; }

@@ -23,7 +23,6 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap">
 </noscript>
 
-<link rel="preload" as="image" href="/paper/hero_forme.webp">
 <link rel="stylesheet" href="/src/styles/tokens.css">
 <link rel="stylesheet" href="/src/paper/paper.css">
 </head>
@@ -61,7 +60,10 @@
 
   <!-- 01 ─ HERO ─────────────────────────────────────── -->
   <section class="mv mv--hero" id="s-hero" data-label="">
-    <div class="mv__bg"><img src="/paper/hero_forme.webp" alt="" fetchpriority="high"></div>
+    <!-- The headline itself, as a point cloud that reads one way at 0° and the
+         other at 90°. See src/paper/glyphfield.js. If GL never starts, the
+         <h1> below stays visible and the hero is simply type on a field. -->
+    <canvas id="glyph" aria-hidden="true"></canvas>
     <div class="mv__wrap">
       <h1 class="hero__line rv">
         <span>Another reading</span>
@@ -83,20 +85,20 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.14">
-          <img src="/paper/plate_intro_twobooks.webp" alt="開いた本の上に、もう一冊が伏せて重なっている" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_intro_twobooks.png" data-ink="#cbd5e0" alt="開いた本の上に、もう一冊が伏せて重なっている" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.3">
-          <img src="/paper/detail_thread.webp" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_thread.png" data-ink="#d7d8d8" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="chip" data-depth="0.44">
-          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_typecase.png" data-ink="#d9d8d6" alt="活字ケースの仕切り" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
 
   <!-- 03 ─ WORKS ────────────────────────────────────── -->
   <section class="mv mv--head" id="s-works" data-label="Works">
-    <div class="mv__bg"><img src="/paper/bg_works_shelf.webp" alt="" loading="lazy"></div>
+    <div class="mv__bg"><img src="/paper/ht/bg_works_shelf.png" data-ink="#ced5de" alt="" loading="lazy"></div>
     <div class="mv__body">
       <p class="eyebrow rv">Selected Work · 01 — 04</p>
       <h2 class="h-en rv">Works.</h2>
@@ -114,10 +116,10 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.18">
-          <img src="/paper/plate_bwh_minutes.webp" alt="付箋と書き込みで埋まった議事録" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_bwh_minutes.png" data-ink="#d0d6dc" alt="付箋と書き込みで埋まった議事録" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_nib.png" data-ink="#dedad2" alt="インクを湛えたペン先" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -132,10 +134,10 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.18">
-          <img src="/paper/plate_kyobo_diecut.webp" alt="型抜きシートと、抜かれた無地の駒" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_kyobo_diecut.png" data-ink="#d3d7db" alt="型抜きシートと、抜かれた無地の駒" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_stackedge.webp" alt="紙の小口の層" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_stackedge.png" data-ink="#d8d8d7" alt="紙の小口の層" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -150,10 +152,10 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.18">
-          <img src="/paper/plate_edonuts_grid.webp" alt="方眼の線を無視して走る、子どもの鉛筆の線" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_edonuts_grid.png" data-ink="#d5d7d9" alt="方眼の線を無視して走る、子どもの鉛筆の線" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_torn.webp" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_torn.png" data-ink="#dad9d5" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -168,17 +170,17 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.18">
-          <img src="/paper/plate_tsukaishi_transcript.webp" alt="括弧と接続線が引かれた書き起こし原稿" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_tsukaishi_transcript.png" data-ink="#d8d8d7" alt="括弧と接続線が引かれた書き起こし原稿" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_typecase.png" data-ink="#d9d8d6" alt="活字ケースの仕切り" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
 
   <!-- 04 ─ BELIEFS ──────────────────────────────────── -->
   <section class="mv mv--head" id="s-beliefs" data-label="Beliefs">
-    <div class="mv__bg"><img src="/paper/bg_beliefs_corrections.webp" alt="" loading="lazy"></div>
+    <div class="mv__bg"><img src="/paper/ht/bg_beliefs_corrections.png" data-ink="#dad9d5" alt="" loading="lazy"></div>
     <div class="mv__body">
       <p class="eyebrow rv">— About</p>
       <h2 class="h-en rv">Beliefs in<br><em>Practice.</em></h2>
@@ -193,13 +195,13 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.16">
-          <img src="/paper/belief_repetition_v3.webp" alt="同じ頁が壁一面に整列している" loading="lazy" decoding="async">
+          <img src="/paper/ht/belief_repetition_v3.png" data-ink="#dddad3" alt="同じ頁が壁一面に整列している" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.3">
-          <img src="/paper/belief_repetition_v1.webp" alt="同じ版面が積み上がる" loading="lazy" decoding="async">
+          <img src="/paper/ht/belief_repetition_v1.png" data-ink="#dddad3" alt="同じ版面が積み上がる" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="chip" data-depth="0.44">
-          <img src="/paper/detail_stackedge.webp" alt="紙の小口の層" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_stackedge.png" data-ink="#d8d8d7" alt="紙の小口の層" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -212,10 +214,10 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.16">
-          <img src="/paper/plate_mission_twopapers.webp" alt="和紙と洋紙が縁で交わっている" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_mission_twopapers.png" data-ink="#dfdad1" alt="和紙と洋紙が縁で交わっている" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_torn.webp" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_torn.png" data-ink="#dad9d5" alt="手で裂かれた紙の縁" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -228,17 +230,17 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.16">
-          <img src="/paper/plate_stance_inserted.webp" alt="均一な頁の束の内側に、一枚だけ違う紙が差さっている" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_stance_inserted.png" data-ink="#e2dbd0" alt="均一な頁の束の内側に、一枚だけ違う紙が差さっている" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.32">
-          <img src="/paper/detail_thread.webp" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_thread.png" data-ink="#d7d8d8" alt="手で綴じられた背の糸" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
 
   <!-- 05 ─ PROFILE ──────────────────────────────────── -->
   <section class="mv mv--profile" id="s-profile" data-label="Profile">
-    <div class="mv__bg"><img src="/paper/bg_profile_desk.webp" alt="" loading="lazy"></div>
+    <div class="mv__bg"><img src="/paper/ht/bg_profile_desk.png" data-ink="#e4dcce" alt="" loading="lazy"></div>
     <div class="mv__body">
       <p class="eyebrow rv">— Profile</p>
       <h2 class="h-en rv">Researcher<br>&amp; <em>Practitioner.</em></h2>
@@ -275,10 +277,10 @@
     <!-- The one photograph on this page that is not generated. -->
       <div class="plates" aria-hidden="false">
         <figure class="plate plate--portrait rv" data-p="lead" data-depth="0.12">
-          <img src="/portrait_ginzo.jpg" alt="静木 銀蔵" loading="lazy" decoding="async">
+          <img src="/paper/ht/portrait_ginzo.png" data-ink="#e4dcce" alt="静木 銀蔵" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.3">
-          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_nib.png" data-ink="#dedad2" alt="インクを湛えたペン先" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
@@ -292,20 +294,20 @@
     </div>
       <div class="plates" aria-hidden="false">
         <figure class="plate rv" data-p="lead" data-depth="0.16">
-          <img src="/paper/plate_writings_proof.webp" alt="圧の跡と赤字の残る校正紙" loading="lazy" decoding="async">
+          <img src="/paper/ht/plate_writings_proof.png" data-ink="#e7dccc" alt="圧の跡と赤字の残る校正紙" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="sub" data-depth="0.3">
-          <img src="/paper/detail_typecase.webp" alt="活字ケースの仕切り" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_typecase.png" data-ink="#d9d8d6" alt="活字ケースの仕切り" loading="lazy" decoding="async">
         </figure>
         <figure class="plate rv" data-p="chip" data-depth="0.44">
-          <img src="/paper/detail_nib.webp" alt="インクを湛えたペン先" loading="lazy" decoding="async">
+          <img src="/paper/ht/detail_nib.png" data-ink="#dedad2" alt="インクを湛えたペン先" loading="lazy" decoding="async">
         </figure>
       </div>
   </section>
 
   <!-- 07 ─ CONTACT ──────────────────────────────────── -->
   <section class="mv mv--contact" id="s-contact" data-label="Contact">
-    <div class="mv__bg"><img src="/paper/bg_contact_blank.webp" alt="" loading="lazy"></div>
+    <div class="mv__bg"><img src="/paper/ht/bg_contact_blank.png" data-ink="#e9ddca" alt="" loading="lazy"></div>
     <div class="mv__body">
       <p class="eyebrow rv">— Contact</p>
       <h2 class="h-jp h-jp--big rv">対話は、いつでも<em>開かれて</em>います。</h2>
