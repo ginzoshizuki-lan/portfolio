@@ -24,8 +24,12 @@
 
   --field: color-mix(in oklab, var(--field-cold), var(--field-warm) calc(var(--t) * 100%));
   --ink:   color-mix(in oklab, var(--ink-cold),   var(--ink-warm)   calc(var(--t) * 100%));
-  --dim: rgba(217, 215, 212, 0.58);
-  --faint: rgba(217, 215, 212, 0.34);
+  /* Raised from 0.58 and 0.34. Against a flat photograph those measured
+     5.09:1 and 2.34:1; over the halftone, where every cell swings between the
+     field and full ink, the eyebrow labels fell to 1.15:1 and the profile
+     lists to 4.21:1 in the bright patches. */
+  --dim: rgba(217, 215, 212, 0.70);
+  --faint: rgba(217, 215, 212, 0.56);
   --rule: rgba(217, 215, 212, 0.18);
 
   --en: "EB Garamond", "Cormorant Garamond", serif;

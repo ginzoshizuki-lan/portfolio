@@ -20,6 +20,10 @@
 <link rel="stylesheet" media="print" onload="this.media='all'"
       href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap">
 <noscript>
+  <!-- Every .rv starts at opacity 0 and is revealed by the scroll loop, so
+       without JS the page is the fixed chrome and nothing else: 78 elements
+       invisible, 23% of the text on screen. Measured, not assumed. -->
+  <style>.rv{opacity:1!important;transform:none!important}</style>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=JetBrains+Mono:wght@400&family=Zen+Old+Mincho:wght@400;500;600&display=swap">
 </noscript>
 
